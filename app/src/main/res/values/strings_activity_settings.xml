@@ -1,0 +1,21 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_defaultopts">Default Command-Line Options</string>
+    <string name="pref_default_defaultopts" />
+
+
+    <string name="pref_header_advanced">Advanced</string>
+
+    <string name="pref_title_updateurl">Update URL</string>
+    <string name="pref_default_updateurl">https://s3.amazonaws.com/nmap-dl/nmap-android-ui</string>
+
+    <string name="pref_title_binaryloc">Nmap binary directory</string>
+    <string name="pref_default_binaryloc" />
+
+
+</resources>

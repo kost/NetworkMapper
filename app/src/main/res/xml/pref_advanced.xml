@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:key="pref_updateurl"
+        android:title="@string/pref_title_updateurl"
+        android:defaultValue="@string/pref_default_updateurl"
+        android:selectAllOnFocus="true"
+        android:inputType="textCapWords"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+    <EditTextPreference
+        android:key="pref_binaryloc"
+        android:title="@string/pref_title_binaryloc"
+        android:defaultValue="@string/pref_default_binaryloc"
+        android:selectAllOnFocus="true"
+        android:inputType="textCapWords"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+
+</PreferenceScreen>
