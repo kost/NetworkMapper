@@ -111,13 +111,32 @@ public class MainActivity extends ActionBarActivity {
             outputView.setText(savedInstanceState.getString("outputView"));
         } else {
             outputView.setText("");
-            displayBinInfo();
             displaySuInfo();
+        }
+        if (!isBinaryHere(false)) {
+            askToDownload();
         }
     }
 
-    public boolean displayBinInfo () {
-        return isBinaryHere(true);
+    public void askToDownload () {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        currentEabi = 0;
+                        downloadAll();
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Nmap binary not found. Download Nmap binary?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
     }
 
     public void displaySuInfo() {
@@ -782,7 +801,8 @@ public class MainActivity extends ActionBarActivity {
                         Toast.makeText(context, "Data file(s) extracted", Toast.LENGTH_SHORT).show();
                         Log.i("NetworkMapper", "Data Completed. Directory: " + result);
 
-                        displayBinInfo();
+                        // Everything is finished: download and unzipping, check & display
+                        isBinaryHere(true);
                     }
 
                     void DeleteRecursive(File fileOrDirectory) {
