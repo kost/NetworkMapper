@@ -71,21 +71,16 @@ public class MainActivity extends ActionBarActivity {
         // supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        nmapurl=sharedPrefs.getString("pref_updateurl",getResources().getString(R.string.pref_default_updateurl));
+        nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
 
         setContentView(R.layout.activity_main);
 
         // ProgressDialog
         sharedProgressDialog = new ProgressDialog(this);
-        sharedProgressDialog.setMessage("Download");
+        sharedProgressDialog.setMessage(getString(R.string.dlg_progress_title_download));
         sharedProgressDialog.setIndeterminate(true);
         sharedProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         sharedProgressDialog.setCancelable(true);
-
-        // available only on Android 5+
-        // for (String abi : Build.SUPPORTED_ABIS ) {
-        //     Log.i("NetworkMapper", "Supported ABI: " + abi);
-        // }
 
         outputView=(TextView)findViewById(R.id.outputView);
         editText=(EditText)findViewById(R.id.editText);
@@ -94,7 +89,7 @@ public class MainActivity extends ActionBarActivity {
 
         // setSupportProgressBarIndeterminateVisibility(true);
 
-        String binarydir=sharedPrefs.getString("pref_binaryloc",getResources().getString(R.string.pref_default_binaryloc));
+        String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
 
         appdir = getFilesDir().getParent();
         if (binarydir.length()>0) {
@@ -122,29 +117,26 @@ public class MainActivity extends ActionBarActivity {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
+                if (which == DialogInterface.BUTTON_POSITIVE) {
                         currentEabi = 0;
                         downloadAll();
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        break;
                 }
             }
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Nmap binary not found. Download Nmap binary?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
+        builder.setMessage(getString(R.string.dlg_ask2download))
+                .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
+                .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
+                .show();
     }
 
     public void displaySuInfo() {
         if (canRunRootCommands()) {
-            outputView.append("Root access gained.\n");
+            outputView.append(getString(R.string.info_gotroot));
             shellToRun="su";
         } else {
-            outputView.append("No root access. Limited scans.\n");
+            outputView.append(getString(R.string.info_noroot));
         }
     }
 
@@ -194,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
         profileopt=" "+scanSwitches[spinner.getSelectedItemPosition()]+" ";
 
         // get defaultopts;
-        String defaultopts=sharedPrefs.getString("pref_defaultopts", getResources().getString(R.string.pref_default_defaultopts));
+        String defaultopts=sharedPrefs.getString("pref_defaultopts", getString(R.string.pref_default_defaultopts));
 
         sbcmdline.append(PoorManFilter(nmapbin));
         // add defaultopts if there any
@@ -210,7 +202,7 @@ public class MainActivity extends ActionBarActivity {
         sbcmdline.append(PoorManFilter(editText.getText().toString()));
         String cmdline = sbcmdline.toString();
         Log.i("NetworkMapper", "Executing: " + cmdline);
-        outputView.append("Executing: " + cmdline + "\n");
+        outputView.append(getString(R.string.info_executing) + cmdline + "\n");
 
         final ExecuteTask executeTask = new ExecuteTask(this);
         executeTask.execute(cmdline);
@@ -252,7 +244,7 @@ public class MainActivity extends ActionBarActivity {
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, outputView.getText());
                 sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_to)));
+                startActivity(Intent.createChooser(sendIntent, getText(R.string.share_to)));
                 break;
 
             case R.id.action_displayip:
@@ -261,8 +253,8 @@ public class MainActivity extends ActionBarActivity {
 
             case R.id.action_about:
                 AlertDialog.Builder aboutbuilder = new AlertDialog.Builder(this);
-                AlertDialog aboutdlg = aboutbuilder.setTitle(getResources().getString(R.string.aboutdlg_title)).
-                    setMessage(getResources().getString(R.string.aboutdlg_text)).create();
+                AlertDialog aboutdlg = aboutbuilder.setTitle(getString(R.string.aboutdlg_title)).
+                    setMessage(getString(R.string.aboutdlg_text)).create();
                 aboutdlg.show();
                 break;
         }
@@ -318,12 +310,12 @@ public class MainActivity extends ActionBarActivity {
         File nmapfile = new File(nmapbin);
         if (nmapfile.canExecute()) {
             if (displayOutput) {
-                outputView.append("Binary is present and executable. You can scan!\n");
+                outputView.append(getString(R.string.info_binary_ok));
             }
             return true;
         } else {
             if (displayOutput) {
-                outputView.append("Binary is not executable. Please download binary from menu.\n");
+                outputView.append(getString(R.string.info_binary_notok));
             }
             return false;
         }
@@ -399,7 +391,7 @@ public class MainActivity extends ActionBarActivity {
                     getClass().getName());
             mWakeLock.acquire();
 
-            Toast.makeText(context,"Scan started", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,getString(R.string.toast_scan_started), Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -418,7 +410,7 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             mWakeLock.release();
             setSupportProgressBarIndeterminateVisibility(false);
-            Toast.makeText(context,"Scan finished", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,getString(R.string.toast_scan_finished), Toast.LENGTH_SHORT).show();
             if (result!=null) outputView.append(result);
             scrollToBottom();
         }
@@ -515,7 +507,7 @@ public class MainActivity extends ActionBarActivity {
             sharedProgressDialog.setIndeterminate(false);
             sharedProgressDialog.setMax(100);
             sharedProgressDialog.setProgress(progress[0]);
-            sharedProgressDialog.setMessage("Download");
+            sharedProgressDialog.setMessage(getString(R.string.dlg_progress_title_download));
         }
 
         public DownloadTask(Context context) {
@@ -578,7 +570,7 @@ public class MainActivity extends ActionBarActivity {
                 zin.close();
                 boolean deleted = new File(zipfn).delete(); // delete file after successful unzip
             } catch (Exception e) {
-                Log.e("NetowrkMapper", "unzip", e);
+                Log.e("NetworkMapper", "unzip", e);
             }
             return dest;
         }
@@ -586,7 +578,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             // super.onPreExecute();
-            sharedProgressDialog.setMessage("Extraction");
+            sharedProgressDialog.setMessage(getString(R.string.dlg_progress_title_extraction));
             sharedProgressDialog.show();
         }
 
@@ -653,11 +645,11 @@ public class MainActivity extends ActionBarActivity {
             mWakeLock.release();
             sharedProgressDialog.dismiss();
             if (result == null) {
-                Toast.makeText(context, "Version download error: " + result, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, getString(R.string.toast_download_version_error) + result, Toast.LENGTH_LONG).show();
                 return;
             }
 
-            Toast.makeText(context,"Version file downloaded", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,getString(R.string.toast_download_version_ok), Toast.LENGTH_SHORT).show();
 
             downloadBinary(result,donexteabi());
         }
@@ -706,15 +698,15 @@ public class MainActivity extends ActionBarActivity {
                     mWakeLock.release();
                     String nextEabi = donexteabi();
                     if (nextEabi==null) {
-                        Toast.makeText(context, "Binary download error: " + result, Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(context, "Trying next architecture: "+nextEabi.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+nextEabi.toString(),Toast.LENGTH_LONG).show();
                         downloadBinary(prefixfn, nextEabi);
                     }
                     return;
                 }
 
-                Toast.makeText(context,"Binary file(s) downloaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,getString(R.string.toast_download_binary_ok), Toast.LENGTH_SHORT).show();
 
                 String bindir = getFilesDir().getParent() + "/bin/";
 
@@ -722,7 +714,7 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     protected void onPostExecute(String result) {
                         sharedProgressDialog.dismiss();
-                        Toast.makeText(context,"Binary file(s) extracted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,getString(R.string.toast_binary_extraction_ok), Toast.LENGTH_SHORT).show();
                         Log.i("NetworkMapper","Completed. Directory: "+result);
                         String bindir = getFilesDir().getParent() + "/bin/";
                         String[] commands = {"ncat", "ndiff", "nmap", "nping"};
@@ -775,11 +767,11 @@ public class MainActivity extends ActionBarActivity {
             protected void onPostExecute(String result) {
                 sharedProgressDialog.dismiss();
                 if (result != null) {
-                    Toast.makeText(context, "Data Download error: " + result, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, getString(R.string.toast_data_download_error) + result, Toast.LENGTH_LONG).show();
                     mWakeLock.release();
                     return;
                 }
-                Toast.makeText(context, "Data File downloaded", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, getString(R.string.toast_data_download_ok), Toast.LENGTH_SHORT).show();
 
                 String datadir = Environment.getExternalStorageDirectory().toString() + "/opt/";
                 final UnzipTask datazipTask = new UnzipTask(this.context) {
@@ -798,7 +790,7 @@ public class MainActivity extends ActionBarActivity {
                             Log.i("NetworkMapper","No need to delete recursively!");
                         }
                         sharedProgressDialog.dismiss();
-                        Toast.makeText(context, "Data file(s) extracted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getString(R.string.toast_data_extraction_ok), Toast.LENGTH_SHORT).show();
                         Log.i("NetworkMapper", "Data Completed. Directory: " + result);
 
                         // Everything is finished: download and unzipping, check & display
