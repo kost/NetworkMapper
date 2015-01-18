@@ -118,7 +118,6 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == DialogInterface.BUTTON_POSITIVE) {
-                        currentEabi = 0;
                         downloadAll();
                 }
             }
@@ -231,7 +230,6 @@ public class MainActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_download:
-                currentEabi = 0;
                 downloadAll();
                 break;
 
@@ -657,6 +655,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void downloadAll () {
+        currentEabi = 0;
         final SimpleHttpTask verTask = new SimpleHttpTask(this);
         verTask.execute(nmapurl + "/nmap-latest.txt");
 
