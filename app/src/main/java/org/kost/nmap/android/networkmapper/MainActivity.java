@@ -574,7 +574,7 @@ public class MainActivity extends ActionBarActivity {
                 zin.close();
                 boolean deleted = new File(zipfn).delete(); // delete file after successful unzip
             } catch (Exception e) {
-                Log.e("NetowrkMapper", "unzip", e);
+                Log.e("NetworkMapper", "unzip", e);
             }
             return dest;
         }
