@@ -122,14 +122,9 @@ public class MainActivity extends ActionBarActivity {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
+                if (which == DialogInterface.BUTTON_POSITIVE) {
                         currentEabi = 0;
                         downloadAll();
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        break;
                 }
             }
         };
