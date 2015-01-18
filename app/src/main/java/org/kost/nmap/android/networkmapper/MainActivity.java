@@ -82,11 +82,6 @@ public class MainActivity extends ActionBarActivity {
         sharedProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         sharedProgressDialog.setCancelable(true);
 
-        // available only on Android 5+
-        // for (String abi : Build.SUPPORTED_ABIS ) {
-        //     Log.i("NetworkMapper", "Supported ABI: " + abi);
-        // }
-
         outputView=(TextView)findViewById(R.id.outputView);
         editText=(EditText)findViewById(R.id.editText);
         scrollView=(ScrollView)findViewById(R.id.scrollView);
