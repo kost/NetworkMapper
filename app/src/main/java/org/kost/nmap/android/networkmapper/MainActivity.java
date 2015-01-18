@@ -71,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
         // supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        nmapurl=sharedPrefs.getString("pref_updateurl",getResources().getString(R.string.pref_default_updateurl));
+        nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
 
         setContentView(R.layout.activity_main);
 
@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
 
         // setSupportProgressBarIndeterminateVisibility(true);
 
-        String binarydir=sharedPrefs.getString("pref_binaryloc",getResources().getString(R.string.pref_default_binaryloc));
+        String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
 
         appdir = getFilesDir().getParent();
         if (binarydir.length()>0) {
@@ -130,17 +130,18 @@ public class MainActivity extends ActionBarActivity {
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(getResources().getString(R.string.dlg_ask2download))
-                .setPositiveButton(getResources().getString(R.string.dlg_ask2download_yes), dialogClickListener)
-                .setNegativeButton(getResources().getString(R.string.dlg_ask2download_no), dialogClickListener).show();
+        builder.setMessage(getString(R.string.dlg_ask2download))
+                .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
+                .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
+                .show();
     }
 
     public void displaySuInfo() {
         if (canRunRootCommands()) {
-            outputView.append(getResources().getString(R.string.info_gotroot));
+            outputView.append(getString(R.string.info_gotroot));
             shellToRun="su";
         } else {
-            outputView.append(getResources().getString(R.string.info_noroot));
+            outputView.append(getString(R.string.info_noroot));
         }
     }
 
@@ -190,7 +191,7 @@ public class MainActivity extends ActionBarActivity {
         profileopt=" "+scanSwitches[spinner.getSelectedItemPosition()]+" ";
 
         // get defaultopts;
-        String defaultopts=sharedPrefs.getString("pref_defaultopts", getResources().getString(R.string.pref_default_defaultopts));
+        String defaultopts=sharedPrefs.getString("pref_defaultopts", getString(R.string.pref_default_defaultopts));
 
         sbcmdline.append(PoorManFilter(nmapbin));
         // add defaultopts if there any
@@ -206,7 +207,7 @@ public class MainActivity extends ActionBarActivity {
         sbcmdline.append(PoorManFilter(editText.getText().toString()));
         String cmdline = sbcmdline.toString();
         Log.i("NetworkMapper", "Executing: " + cmdline);
-        outputView.append(getResources().getString(R.string.info_executing) + cmdline + "\n");
+        outputView.append(getString(R.string.info_executing) + cmdline + "\n");
 
         final ExecuteTask executeTask = new ExecuteTask(this);
         executeTask.execute(cmdline);
@@ -248,7 +249,7 @@ public class MainActivity extends ActionBarActivity {
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, outputView.getText());
                 sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_to)));
+                startActivity(Intent.createChooser(sendIntent, getText(R.string.share_to)));
                 break;
 
             case R.id.action_displayip:
@@ -257,8 +258,8 @@ public class MainActivity extends ActionBarActivity {
 
             case R.id.action_about:
                 AlertDialog.Builder aboutbuilder = new AlertDialog.Builder(this);
-                AlertDialog aboutdlg = aboutbuilder.setTitle(getResources().getString(R.string.aboutdlg_title)).
-                    setMessage(getResources().getString(R.string.aboutdlg_text)).create();
+                AlertDialog aboutdlg = aboutbuilder.setTitle(getString(R.string.aboutdlg_title)).
+                    setMessage(getString(R.string.aboutdlg_text)).create();
                 aboutdlg.show();
                 break;
         }
@@ -314,12 +315,12 @@ public class MainActivity extends ActionBarActivity {
         File nmapfile = new File(nmapbin);
         if (nmapfile.canExecute()) {
             if (displayOutput) {
-                outputView.append(getResources().getString(R.string.info_binary_ok));
+                outputView.append(getString(R.string.info_binary_ok));
             }
             return true;
         } else {
             if (displayOutput) {
-                outputView.append(getResources().getString(R.string.info_binary_notok));
+                outputView.append(getString(R.string.info_binary_notok));
             }
             return false;
         }
