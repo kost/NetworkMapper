@@ -48,21 +48,21 @@ import java.util.zip.ZipInputStream;
 
 
 public class MainActivity extends ActionBarActivity {
-    ProgressDialog sharedProgressDialog;
-    String nmapurl;
+    private ProgressDialog sharedProgressDialog;
+    private String nmapurl;
 
-    int currentEabi;
-    TextView outputView;
-    EditText editText;
-    ScrollView scrollView;
-    Spinner spinner;
+    private int currentEabi;
+    private TextView outputView;
+    private EditText editText;
+    private ScrollView scrollView;
+    private Spinner spinner;
 
-    SharedPreferences sharedPrefs;
+    private SharedPreferences sharedPrefs;
 
-    String appdir;
-    String bindir;
-    String nmapbin;
-    String shellToRun;
+    private String appdir;
+    private String bindir;
+    private String nmapbin;
+    private String shellToRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +118,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void askToDownload () {
+    void askToDownload() {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -139,7 +139,7 @@ public class MainActivity extends ActionBarActivity {
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    public void displaySuInfo() {
+    void displaySuInfo() {
         if (canRunRootCommands()) {
             outputView.append("Root access gained.\n");
             shellToRun="su";
@@ -148,11 +148,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public String PoorManFilter (String str) {
+    String PoorManFilter(String str) {
         return str.replaceAll("[^A-Za-z0-9_ ./-]","");
     }
 
-    public String getIPs () {
+    String getIPs() {
         String interfaces="";
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -269,7 +269,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static boolean canRunRootCommands()
+    private static boolean canRunRootCommands()
     {
         boolean retval = false;
         Process suProcess;
@@ -289,7 +289,7 @@ public class MainActivity extends ActionBarActivity {
                     retval = false;
                     exitSu = false;
                 }
-                else if (true == currUid.contains("uid=0"))
+                else if (currUid.contains("uid=0"))
                 {
                     retval = true;
                     exitSu = true;
@@ -314,7 +314,7 @@ public class MainActivity extends ActionBarActivity {
         return retval;
     }
 
-    public boolean isBinaryHere (boolean displayOutput) {
+    boolean isBinaryHere(boolean displayOutput) {
         File nmapfile = new File(nmapbin);
         if (nmapfile.canExecute()) {
             if (displayOutput) {
@@ -341,8 +341,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class ExecuteTask extends AsyncTask<String,String,String> {
-        protected Context context;
-        protected PowerManager.WakeLock mWakeLock;
+        final Context context;
+        PowerManager.WakeLock mWakeLock;
 
         @Override
         protected String doInBackground(String... sParm) {
@@ -426,11 +426,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class DownloadTask extends AsyncTask<String,Integer,String> {
-        protected Context context;
-        protected PowerManager.WakeLock mWakeLock;
-        protected String dlurl;
-        protected String dlfn;
-        protected String dlprefix;
+        final Context context;
+        PowerManager.WakeLock mWakeLock;
+        String dlurl;
+        String dlfn;
+        String dlprefix;
 
         @Override
         protected String doInBackground(String... sParm) {
@@ -525,11 +525,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class UnzipTask extends AsyncTask<String,Integer,String> {
-        private Context context;
+        private final Context context;
         private PowerManager.WakeLock mWakeLock;
-        protected int per;
-        protected String dlprefix;
-        protected int maxfiles;
+        int per;
+        String dlprefix;
+        int maxfiles;
 
         public UnzipTask(Context context) {
             this.context = context;
@@ -598,7 +598,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
         private class SimpleHttpTask extends AsyncTask<String, Void, String> {
-        private Context context;
+        private final Context context;
         private PowerManager.WakeLock mWakeLock;
 
         public SimpleHttpTask(Context context) {
@@ -664,7 +664,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    public void downloadAll () {
+    void downloadAll() {
         final SimpleHttpTask verTask = new SimpleHttpTask(this);
         verTask.execute(nmapurl + "/nmap-latest.txt");
 
@@ -676,7 +676,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public String donexteabi () {
+    String donexteabi() {
         switch (currentEabi++) {
             case 0:
                 return Build.CPU_ABI.toString();
@@ -686,7 +686,7 @@ public class MainActivity extends ActionBarActivity {
         return null;
     }
 
-    public void downloadBinary (final String prefixfn,String eabi) {
+    void downloadBinary(final String prefixfn, String eabi) {
         String appdir = getFilesDir().getParent();
         String bindir = appdir + "/bin";
         String dldir = appdir + "/dl";
@@ -761,7 +761,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public void downloadData (final String prefixfn) {
+    void downloadData(final String prefixfn) {
         String root = Environment.getExternalStorageDirectory().toString();
         final String datadldir = root + "/opt";
 
