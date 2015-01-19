@@ -113,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    void askToDownload() {
+    private void askToDownload() {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -130,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
                 .show();
     }
 
-    void displaySuInfo() {
+    private void displaySuInfo() {
         if (canRunRootCommands()) {
             outputView.append(getString(R.string.info_gotroot));
             shellToRun="su";
@@ -139,11 +139,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    String PoorManFilter(String str) {
+    private String PoorManFilter(String str) {
         return str.replaceAll("[^A-Za-z0-9_ ./-]","");
     }
 
-    String getIPs() {
+    private String getIPs() {
         String interfaces="";
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -301,7 +301,7 @@ public class MainActivity extends ActionBarActivity {
         return retval;
     }
 
-    boolean isBinaryHere(boolean displayOutput) {
+    private boolean isBinaryHere(boolean displayOutput) {
         File nmapfile = new File(nmapbin);
         if (nmapfile.canExecute()) {
             if (displayOutput) {
@@ -579,7 +579,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-        private class SimpleHttpTask extends AsyncTask<String, Void, String> {
+    private class SimpleHttpTask extends AsyncTask<String, Void, String> {
         private final Context context;
         private PowerManager.WakeLock mWakeLock;
 
@@ -745,7 +745,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    void downloadData(final String prefixfn) {
+    private void downloadData(final String prefixfn) {
         String root = Environment.getExternalStorageDirectory().toString();
         final String datadldir = root + "/opt";
 
