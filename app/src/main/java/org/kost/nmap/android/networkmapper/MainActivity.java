@@ -277,33 +277,30 @@ public class MainActivity extends ActionBarActivity {
             suProcess = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(suProcess.getOutputStream());
             DataInputStream osRes = new DataInputStream(suProcess.getInputStream());
-            if (null != os && null != osRes)
+            os.writeBytes("id\n");
+            os.flush();
+            String currUid = osRes.readLine();
+            boolean exitSu = false;
+            if (null == currUid)
             {
-                os.writeBytes("id\n");
-                os.flush();
-                String currUid = osRes.readLine();
-                boolean exitSu = false;
-                if (null == currUid)
-                {
-                    retval = false;
-                    exitSu = false;
-                }
-                else if (currUid.contains("uid=0"))
-                {
-                    retval = true;
-                    exitSu = true;
-                }
-                else
-                {
-                    retval = false;
-                    exitSu = true;
-                }
+                retval = false;
+                exitSu = false;
+            }
+            else if (currUid.contains("uid=0"))
+            {
+                retval = true;
+                exitSu = true;
+            }
+            else
+            {
+                retval = false;
+                exitSu = true;
+            }
 
-                if (exitSu)
-                {
-                    os.writeBytes("exit\n");
-                    os.flush();
-                }
+            if (exitSu)
+            {
+                os.writeBytes("exit\n");
+                os.flush();
             }
         }
         catch (Exception e)
@@ -375,6 +372,7 @@ public class MainActivity extends ActionBarActivity {
                 while ((pstdout = inputStream.readLine()) != null) {
                     pstderr=null;
                     Log.i("NetworkMapper","Stdout: "+pstdout);
+                    // XXX: pstderr is always null
                     Log.i("NetworkMapper","Stderr: "+pstderr);
                     publishProgress(pstdout+"\n",pstderr);
                 }
@@ -383,6 +381,7 @@ public class MainActivity extends ActionBarActivity {
                 throw new RuntimeException(e);
             }
 
+            // XXX: pstdout is always null
             return pstdout;
         }
 
@@ -650,6 +649,7 @@ public class MainActivity extends ActionBarActivity {
             mWakeLock.release();
             sharedProgressDialog.dismiss();
             if (result == null) {
+                // XXX reporting with null doesn't make sense
                 Toast.makeText(context, "Version download error: " + result, Toast.LENGTH_LONG).show();
                 return;
             }
