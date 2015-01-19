@@ -791,7 +791,7 @@ public class MainActivity extends ActionBarActivity {
                         if (oldver!="" && oldver!=prefixfn) {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.nmapbin_version), prefixfn);
-                            editor.commit();
+                            editor.apply();
                             Log.i("NetworkMapper","deleting recursively!");
                             DeleteRecursive(new File(datadldir + "/" + prefixfn));
                         } else {
@@ -824,7 +824,7 @@ public class MainActivity extends ActionBarActivity {
                 });
 
                 mWakeLock.release();
-            };
+            }
         };
         Log.i("NetworkMapper", "Executing using: " + nmapurl + "/" + datafn );
         dataTask.execute(nmapurl + "/" + datafn, datadldir + "/" + datafn, prefixfn, datadldir);
