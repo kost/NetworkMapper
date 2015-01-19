@@ -186,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
     public void onScanButtonClick (View v) {
         StringBuilder sbcmdline = new StringBuilder("");
 
-        String profileopt="";
+        String profileopt;
 
         // Spinner options - TODO: check if array is large enough
         String scanSwitches[]=getResources().getStringArray(R.array.scan_values_array);
@@ -270,7 +270,7 @@ public class MainActivity extends ActionBarActivity {
 
     private static boolean canRunRootCommands()
     {
-        boolean retval = false;
+        boolean retval;
         Process suProcess;
         try
         {
@@ -280,7 +280,7 @@ public class MainActivity extends ActionBarActivity {
             os.writeBytes("id\n");
             os.flush();
             String currUid = osRes.readLine();
-            boolean exitSu = false;
+            boolean exitSu;
             if (null == currUid)
             {
                 retval = false;
@@ -343,13 +343,12 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected String doInBackground(String... sParm) {
             String cmdline=sParm[0];
-            String pstdout=null;
-            String pstderr=null;
+            String pstdout;
+            String pstderr;
             String[] commands = { cmdline };
 
-            DataOutputStream outputStream = null;
-            BufferedReader inputStream, errorStream;
-            inputStream = errorStream = null;
+            DataOutputStream outputStream;
+            BufferedReader inputStream;
 
             try {
                 Process process = Runtime.getRuntime().exec(shellToRun);
@@ -357,15 +356,11 @@ public class MainActivity extends ActionBarActivity {
                 outputStream = new DataOutputStream(process.getOutputStream());
                 inputStream = new BufferedReader(new InputStreamReader(
                         process.getInputStream()));
-                errorStream = new BufferedReader(new InputStreamReader(
-                        process.getErrorStream()));
 
                 for (String single : commands) {
                     Log.i("NetworkMapper","Single Executing: "+single);
                     outputStream.writeBytes(single + "\n");
                     outputStream.flush();
-
-                    pstdout="";
                 }
                 outputStream.writeBytes("exit\n");
                 outputStream.flush();
@@ -546,7 +541,7 @@ public class MainActivity extends ActionBarActivity {
 
                 FileInputStream fin = new FileInputStream(zipfn);
                 ZipInputStream zin = new ZipInputStream(fin);
-                ZipEntry ze = null;
+                ZipEntry ze;
                 while ((ze = zin.getNextEntry()) != null) {
                     Log.v("NetworkMapper", "Unzipping " + ze.getName());
 
@@ -572,7 +567,7 @@ public class MainActivity extends ActionBarActivity {
 
                 }
                 zin.close();
-                boolean deleted = new File(zipfn).delete(); // delete file after successful unzip
+                new File(zipfn).delete(); // delete file after successful unzip
             } catch (Exception e) {
                 Log.e("NetowrkMapper", "unzip", e);
             }
@@ -605,7 +600,7 @@ public class MainActivity extends ActionBarActivity {
         protected String doInBackground(String... params) {
             String urllink = params[0];
 
-            String str=null;
+            String str;
             try {
                 URL url = new URL(urllink);
                 Log.i("NetworkMapper","Downloading from URL: "+url.toString());
@@ -725,7 +720,7 @@ public class MainActivity extends ActionBarActivity {
                         String[] commands = {"ncat", "ndiff", "nmap", "nping"};
                         try {
                             for (String singlecommand : commands) {
-                                Process process = Runtime.getRuntime().exec("/system/bin/chmod 755 " + bindir + singlecommand);
+                                Runtime.getRuntime().exec("/system/bin/chmod 755 " + bindir + singlecommand);
                             }
                         } catch (IOException e) {
                             Toast.makeText(context,"Error setting permissions", Toast.LENGTH_SHORT).show();
