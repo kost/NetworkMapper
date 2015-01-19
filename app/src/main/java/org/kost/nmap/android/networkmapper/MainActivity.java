@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -275,9 +277,9 @@ public class MainActivity extends ActionBarActivity {
         try
         {
             suProcess = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(suProcess.getOutputStream());
-            DataInputStream osRes = new DataInputStream(suProcess.getInputStream());
-            os.writeBytes("id\n");
+            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(suProcess.getOutputStream()));
+            BufferedReader osRes = new BufferedReader(new InputStreamReader(suProcess.getInputStream()));
+            os.write("id\n");
             os.flush();
             String currUid = osRes.readLine();
             boolean exitSu;
@@ -299,7 +301,7 @@ public class MainActivity extends ActionBarActivity {
 
             if (exitSu)
             {
-                os.writeBytes("exit\n");
+                os.write("exit\n");
                 os.flush();
             }
         }
