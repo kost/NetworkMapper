@@ -16,10 +16,38 @@
     <string name="action_clear">Clear Screen</string>
     <string name="action_share">Share</string>
     <string name="share_to">Share to</string>
+
+    <string name="dlg_ask2download">Nmap binary not found. Download Nmap binary?</string>
+    <string name="dlg_ask2download_yes">Yes</string>
+    <string name="dlg_ask2download_no">No</string>
+
+    <string name="info_gotroot">Root access gained.\n</string>
+    <string name="info_noroot">No root access. Limited scans.\n</string>
+
+    <string name="info_binary_ok">Binary is present and executable. You can scan!\n</string>
+    <string name="info_binary_notok">Binary is not executable. Please download binary from menu.\n</string>
+
+    <string name="info_executing">Executing: </string>
+
+
+
     <string name="aboutdlg_title">About...</string>
     <string name="aboutdlg_text">NetworkMapper\nCopyright © 2015. Vlatko Kosturjak\nhttps://github.com/kost/NetworkMapper/</string>
 
     <string name="nmapbin_version">nmapbin_version</string>
+    <string name="toast_scan_started">Scan started</string>
+    <string name="toast_scan_finished">Scan finished</string>
+    <string name="dlg_progress_title_download">Download</string>
+    <string name="dlg_progress_title_extraction">Extraction</string>
+    <string name="toast_download_version_error">"Version download error: "</string>
+    <string name="toast_download_version_ok">Version file downloaded</string>
+    <string name="toast_dowload_binary_error">"Binary download error: "</string>
+    <string name="toast_download_binary_nextarch">"Trying next architecture: "</string>
+    <string name="toast_download_binary_ok">Binary file(s) downloaded</string>
+    <string name="toast_binary_extraction_ok">Binary file(s) extracted</string>
+    <string name="toast_data_download_error">"Data Download error: "</string>
+    <string name="toast_data_download_ok">Data File downloaded</string>
+    <string name="toast_data_extraction_ok">Data file(s) extracted</string>
 
     <string-array name="scan_array">
         <item>Regular</item>
