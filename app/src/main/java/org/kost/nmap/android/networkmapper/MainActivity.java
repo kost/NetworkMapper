@@ -160,7 +160,7 @@ public class MainActivity extends ActionBarActivity {
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
-                        interfaces=interfaces+"[IP]: "+inetAddress.getHostAddress().toString()+"\n";
+                        interfaces=interfaces+"[IP]: "+ inetAddress.getHostAddress() +"\n";
                     }
                 }
             }
@@ -677,9 +677,9 @@ public class MainActivity extends ActionBarActivity {
     String donexteabi() {
         switch (currentEabi++) {
             case 0:
-                return Build.CPU_ABI.toString();
+                return Build.CPU_ABI;
             case 1:
-                return Build.CPU_ABI2.toString();
+                return Build.CPU_ABI2;
         }
         return null;
     }
@@ -706,7 +706,7 @@ public class MainActivity extends ActionBarActivity {
                     if (nextEabi==null) {
                         Toast.makeText(context, "Binary download error: " + result, Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(context, "Trying next architecture: "+nextEabi.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Trying next architecture: "+ nextEabi,Toast.LENGTH_LONG).show();
                         downloadBinary(prefixfn, nextEabi);
                     }
                     return;
