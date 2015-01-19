@@ -59,8 +59,6 @@ public class MainActivity extends ActionBarActivity {
 
     private SharedPreferences sharedPrefs;
 
-    private String appdir;
-    private String bindir;
     private String nmapbin;
     private String shellToRun;
 
@@ -96,15 +94,16 @@ public class MainActivity extends ActionBarActivity {
 
         String binarydir=sharedPrefs.getString("pref_binaryloc",getResources().getString(R.string.pref_default_binaryloc));
 
-        appdir = getFilesDir().getParent();
+        String appdir = getFilesDir().getParent();
+        String bindir;
         if (binarydir.length()>0) {
-            bindir=binarydir;
+            bindir =binarydir;
         } else {
             bindir = appdir + "/bin";
         }
-        nmapbin = bindir+"/nmap";
+        nmapbin = bindir +"/nmap";
         shellToRun="sh";
-        Log.i("NetworkMapper","bindir: "+bindir+" shell: "+shellToRun+" nmapbin: "+nmapbin);
+        Log.i("NetworkMapper","bindir: "+ bindir +" shell: "+shellToRun+" nmapbin: "+nmapbin);
 
         if (savedInstanceState != null) {
             Log.i("NetworkMapper","RestoreState()");
