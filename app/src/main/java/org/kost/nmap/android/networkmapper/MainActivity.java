@@ -164,7 +164,7 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }
             }
-        } catch (SocketException ex) {
+        } catch (SocketException ignored) {
         }
         return interfaces;
     }
@@ -380,9 +380,7 @@ public class MainActivity extends ActionBarActivity {
                     publishProgress(pstdout+"\n",pstderr);
                 }
                 process.waitFor();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
