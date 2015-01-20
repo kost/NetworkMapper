@@ -32,7 +32,7 @@
 
 
     <string name="aboutdlg_title">About...</string>
-    <string name="aboutdlg_text">NetworkMapper\nCopyright (C) 2015. Vlatko Kosturjak\nhttps://github.com/kost/NetworkMapper/</string>
+    <string name="aboutdlg_text">NetworkMapper\nCopyright © 2015. Vlatko Kosturjak\nhttps://github.com/kost/NetworkMapper/</string>
 
     <string name="nmapbin_version">nmapbin_version</string>
     <string name="toast_scan_started">Scan started</string>

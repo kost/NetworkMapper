@@ -26,7 +26,7 @@ import android.widget.Toast;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -48,21 +49,19 @@ import java.util.zip.ZipInputStream;
 
 
 public class MainActivity extends ActionBarActivity {
-    ProgressDialog sharedProgressDialog;
-    String nmapurl;
+    private ProgressDialog sharedProgressDialog;
+    private String nmapurl;
 
-    int currentEabi;
-    TextView outputView;
-    EditText editText;
-    ScrollView scrollView;
-    Spinner spinner;
+    private int currentEabi;
+    private TextView outputView;
+    private EditText editText;
+    private ScrollView scrollView;
+    private Spinner spinner;
 
-    SharedPreferences sharedPrefs;
+    private SharedPreferences sharedPrefs;
 
-    String appdir;
-    String bindir;
-    String nmapbin;
-    String shellToRun;
+    private String nmapbin;
+    private String shellToRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,15 +90,16 @@ public class MainActivity extends ActionBarActivity {
 
         String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
 
-        appdir = getFilesDir().getParent();
+        String appdir = getFilesDir().getParent();
+        String bindir;
         if (binarydir.length()>0) {
-            bindir=binarydir;
+            bindir =binarydir;
         } else {
             bindir = appdir + "/bin";
         }
-        nmapbin = bindir+"/nmap";
+        nmapbin = bindir +"/nmap";
         shellToRun="sh";
-        Log.i("NetworkMapper","bindir: "+bindir+" shell: "+shellToRun+" nmapbin: "+nmapbin);
+        Log.i("NetworkMapper","bindir: "+ bindir +" shell: "+shellToRun+" nmapbin: "+nmapbin);
 
         if (savedInstanceState != null) {
             Log.i("NetworkMapper","RestoreState()");
@@ -113,7 +113,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public void askToDownload () {
+    private void askToDownload() {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -130,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
                 .show();
     }
 
-    public void displaySuInfo() {
+    private void displaySuInfo() {
         if (canRunRootCommands()) {
             outputView.append(getString(R.string.info_gotroot));
             shellToRun="su";
@@ -139,11 +139,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    public String PoorManFilter (String str) {
+    private String PoorManFilter(String str) {
         return str.replaceAll("[^A-Za-z0-9_ ./-]","");
     }
 
-    public String getIPs () {
+    private String getIPs() {
         String interfaces="";
         try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -151,11 +151,11 @@ public class MainActivity extends ActionBarActivity {
                 for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
-                        interfaces=interfaces+"[IP]: "+inetAddress.getHostAddress().toString()+"\n";
+                        interfaces=interfaces+"[IP]: "+ inetAddress.getHostAddress() +"\n";
                     }
                 }
             }
-        } catch (SocketException ex) {
+        } catch (SocketException ignored) {
         }
         return interfaces;
     }
@@ -178,7 +178,7 @@ public class MainActivity extends ActionBarActivity {
     public void onScanButtonClick (View v) {
         StringBuilder sbcmdline = new StringBuilder("");
 
-        String profileopt="";
+        String profileopt;
 
         // Spinner options - TODO: check if array is large enough
         String scanSwitches[]=getResources().getStringArray(R.array.scan_values_array);
@@ -259,42 +259,39 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static boolean canRunRootCommands()
+    private static boolean canRunRootCommands()
     {
-        boolean retval = false;
+        boolean retval;
         Process suProcess;
         try
         {
             suProcess = Runtime.getRuntime().exec("su");
-            DataOutputStream os = new DataOutputStream(suProcess.getOutputStream());
-            DataInputStream osRes = new DataInputStream(suProcess.getInputStream());
-            if (null != os && null != osRes)
+            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(suProcess.getOutputStream()));
+            BufferedReader osRes = new BufferedReader(new InputStreamReader(suProcess.getInputStream()));
+            os.write("id\n");
+            os.flush();
+            String currUid = osRes.readLine();
+            boolean exitSu;
+            if (null == currUid)
             {
-                os.writeBytes("id\n");
-                os.flush();
-                String currUid = osRes.readLine();
-                boolean exitSu = false;
-                if (null == currUid)
-                {
-                    retval = false;
-                    exitSu = false;
-                }
-                else if (true == currUid.contains("uid=0"))
-                {
-                    retval = true;
-                    exitSu = true;
-                }
-                else
-                {
-                    retval = false;
-                    exitSu = true;
-                }
+                retval = false;
+                exitSu = false;
+            }
+            else if (currUid.contains("uid=0"))
+            {
+                retval = true;
+                exitSu = true;
+            }
+            else
+            {
+                retval = false;
+                exitSu = true;
+            }
 
-                if (exitSu)
-                {
-                    os.writeBytes("exit\n");
-                    os.flush();
-                }
+            if (exitSu)
+            {
+                os.write("exit\n");
+                os.flush();
             }
         }
         catch (Exception e)
@@ -304,7 +301,7 @@ public class MainActivity extends ActionBarActivity {
         return retval;
     }
 
-    public boolean isBinaryHere (boolean displayOutput) {
+    private boolean isBinaryHere(boolean displayOutput) {
         File nmapfile = new File(nmapbin);
         if (nmapfile.canExecute()) {
             if (displayOutput) {
@@ -331,19 +328,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class ExecuteTask extends AsyncTask<String,String,String> {
-        protected Context context;
-        protected PowerManager.WakeLock mWakeLock;
+        final Context context;
+        PowerManager.WakeLock mWakeLock;
 
         @Override
         protected String doInBackground(String... sParm) {
             String cmdline=sParm[0];
-            String pstdout=null;
-            String pstderr=null;
+            String pstdout;
+            String pstderr;
             String[] commands = { cmdline };
 
-            DataOutputStream outputStream = null;
-            BufferedReader inputStream, errorStream;
-            inputStream = errorStream = null;
+            DataOutputStream outputStream;
+            BufferedReader inputStream;
 
             try {
                 Process process = Runtime.getRuntime().exec(shellToRun);
@@ -351,31 +347,27 @@ public class MainActivity extends ActionBarActivity {
                 outputStream = new DataOutputStream(process.getOutputStream());
                 inputStream = new BufferedReader(new InputStreamReader(
                         process.getInputStream()));
-                errorStream = new BufferedReader(new InputStreamReader(
-                        process.getErrorStream()));
 
                 for (String single : commands) {
                     Log.i("NetworkMapper","Single Executing: "+single);
                     outputStream.writeBytes(single + "\n");
                     outputStream.flush();
-
-                    pstdout="";
                 }
                 outputStream.writeBytes("exit\n");
                 outputStream.flush();
                 while ((pstdout = inputStream.readLine()) != null) {
                     pstderr=null;
                     Log.i("NetworkMapper","Stdout: "+pstdout);
+                    // XXX: pstderr is always null
                     Log.i("NetworkMapper","Stderr: "+pstderr);
                     publishProgress(pstdout+"\n",pstderr);
                 }
                 process.waitFor();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
+            // XXX: pstdout is always null
             return pstdout;
         }
 
@@ -416,11 +408,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class DownloadTask extends AsyncTask<String,Integer,String> {
-        protected Context context;
-        protected PowerManager.WakeLock mWakeLock;
-        protected String dlurl;
-        protected String dlfn;
-        protected String dlprefix;
+        final Context context;
+        PowerManager.WakeLock mWakeLock;
+        String dlurl;
+        String dlfn;
+        String dlprefix;
 
         @Override
         protected String doInBackground(String... sParm) {
@@ -515,11 +507,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class UnzipTask extends AsyncTask<String,Integer,String> {
-        private Context context;
+        private final Context context;
         private PowerManager.WakeLock mWakeLock;
-        protected int per;
-        protected String dlprefix;
-        protected int maxfiles;
+        int per;
+        String dlprefix;
+        int maxfiles;
 
         public UnzipTask(Context context) {
             this.context = context;
@@ -540,7 +532,7 @@ public class MainActivity extends ActionBarActivity {
 
                 FileInputStream fin = new FileInputStream(zipfn);
                 ZipInputStream zin = new ZipInputStream(fin);
-                ZipEntry ze = null;
+                ZipEntry ze;
                 while ((ze = zin.getNextEntry()) != null) {
                     Log.v("NetworkMapper", "Unzipping " + ze.getName());
 
@@ -566,7 +558,7 @@ public class MainActivity extends ActionBarActivity {
 
                 }
                 zin.close();
-                boolean deleted = new File(zipfn).delete(); // delete file after successful unzip
+                new File(zipfn).delete(); // delete file after successful unzip
             } catch (Exception e) {
                 Log.e("NetworkMapper", "unzip", e);
             }
@@ -587,8 +579,8 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-        private class SimpleHttpTask extends AsyncTask<String, Void, String> {
-        private Context context;
+    private class SimpleHttpTask extends AsyncTask<String, Void, String> {
+        private final Context context;
         private PowerManager.WakeLock mWakeLock;
 
         public SimpleHttpTask(Context context) {
@@ -599,7 +591,7 @@ public class MainActivity extends ActionBarActivity {
         protected String doInBackground(String... params) {
             String urllink = params[0];
 
-            String str=null;
+            String str;
             try {
                 URL url = new URL(urllink);
                 Log.i("NetworkMapper","Downloading from URL: "+url.toString());
@@ -643,6 +635,7 @@ public class MainActivity extends ActionBarActivity {
             mWakeLock.release();
             sharedProgressDialog.dismiss();
             if (result == null) {
+                // XXX reporting with null doesn't make sense
                 Toast.makeText(context, getString(R.string.toast_download_version_error) + result, Toast.LENGTH_LONG).show();
                 return;
             }
@@ -654,7 +647,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    public void downloadAll () {
+    private void downloadAll () {
         currentEabi = 0;
         final SimpleHttpTask verTask = new SimpleHttpTask(this);
         verTask.execute(nmapurl + "/nmap-latest.txt");
@@ -667,17 +660,17 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public String donexteabi () {
+    private String donexteabi() {
         switch (currentEabi++) {
             case 0:
-                return Build.CPU_ABI.toString();
+                return Build.CPU_ABI;
             case 1:
-                return Build.CPU_ABI2.toString();
+                return Build.CPU_ABI2;
         }
         return null;
     }
 
-    public void downloadBinary (final String prefixfn,String eabi) {
+    private void downloadBinary(final String prefixfn, String eabi) {
         String appdir = getFilesDir().getParent();
         String bindir = appdir + "/bin";
         String dldir = appdir + "/dl";
@@ -699,7 +692,7 @@ public class MainActivity extends ActionBarActivity {
                     if (nextEabi==null) {
                         Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+nextEabi.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+ nextEabi,Toast.LENGTH_LONG).show();
                         downloadBinary(prefixfn, nextEabi);
                     }
                     return;
@@ -719,7 +712,7 @@ public class MainActivity extends ActionBarActivity {
                         String[] commands = {"ncat", "ndiff", "nmap", "nping"};
                         try {
                             for (String singlecommand : commands) {
-                                Process process = Runtime.getRuntime().exec("/system/bin/chmod 755 " + bindir + singlecommand);
+                                Runtime.getRuntime().exec("/system/bin/chmod 755 " + bindir + singlecommand);
                             }
                         } catch (IOException e) {
                             Toast.makeText(context,"Error setting permissions", Toast.LENGTH_SHORT).show();
@@ -752,7 +745,7 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    public void downloadData (final String prefixfn) {
+    private void downloadData(final String prefixfn) {
         String root = Environment.getExternalStorageDirectory().toString();
         final String datadldir = root + "/opt";
 
@@ -779,10 +772,10 @@ public class MainActivity extends ActionBarActivity {
                         SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName() + "_preferences",Context.MODE_PRIVATE);
                         String oldver=sharedPref.getString(getString(R.string.nmapbin_version),"");
 
-                        if (oldver!="" && oldver!=prefixfn) {
+                        if (!oldver.equals("") && !oldver.equals(prefixfn)) {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.nmapbin_version), prefixfn);
-                            editor.commit();
+                            editor.apply();
                             Log.i("NetworkMapper","deleting recursively!");
                             DeleteRecursive(new File(datadldir + "/" + prefixfn));
                         } else {
@@ -815,7 +808,7 @@ public class MainActivity extends ActionBarActivity {
                 });
 
                 mWakeLock.release();
-            };
+            }
         };
         Log.i("NetworkMapper", "Executing using: " + nmapurl + "/" + datafn );
         dataTask.execute(nmapurl + "/" + datafn, datadldir + "/" + datafn, prefixfn, datadldir);
