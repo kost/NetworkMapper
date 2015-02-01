@@ -140,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private String PoorManFilter(String str) {
-        return str.replaceAll("[^A-Za-z0-9_ ./-]","");
+        return str.replaceAll("[^A-Za-z0-9_ .:/-]","");
     }
 
     private String getIPs() {
