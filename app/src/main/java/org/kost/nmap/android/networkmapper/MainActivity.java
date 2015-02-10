@@ -334,19 +334,21 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected String doInBackground(String... sParm) {
             String cmdline=sParm[0];
-            String pstdout;
-            String pstderr;
+            String pstdout=null;
+            String pstderr=null;
+            StringBuilder wholeoutput = new StringBuilder("");
             String[] commands = { cmdline };
 
             DataOutputStream outputStream;
             BufferedReader inputStream;
+            BufferedReader errorStream;
 
             try {
                 Process process = Runtime.getRuntime().exec(shellToRun);
 
                 outputStream = new DataOutputStream(process.getOutputStream());
-                inputStream = new BufferedReader(new InputStreamReader(
-                        process.getInputStream()));
+                errorStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                inputStream = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
                 for (String single : commands) {
                     Log.i("NetworkMapper","Single Executing: "+single);
@@ -355,20 +357,29 @@ public class MainActivity extends ActionBarActivity {
                 }
                 outputStream.writeBytes("exit\n");
                 outputStream.flush();
-                while ((pstdout = inputStream.readLine()) != null) {
+                inputStream.ready();
+                while (((pstdout = inputStream.readLine()) != null)
+                        || ((pstderr = errorStream.readLine()) != null)) {
+                    if (pstderr!=null) {
+                        pstderr=pstderr+"\n";
+                        wholeoutput.append(pstderr);
+                    }
+                    if (pstdout!=null) {
+                        pstdout=pstdout+"\n";
+                        wholeoutput.append(pstdout);
+                    }
+                    Log.i("NetworkMapper", "Stdout: " + pstdout);
+                    Log.i("NetworkMapper","Stderr: " + pstderr);
+                    publishProgress(pstdout,pstderr);
+                    pstdout=null;
                     pstderr=null;
-                    Log.i("NetworkMapper","Stdout: "+pstdout);
-                    // XXX: pstderr is always null
-                    Log.i("NetworkMapper","Stderr: "+pstderr);
-                    publishProgress(pstdout+"\n",pstderr);
                 }
                 process.waitFor();
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
-            // XXX: pstdout is always null
-            return pstdout;
+            return wholeoutput.toString();
         }
 
         @Override
