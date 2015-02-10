@@ -435,26 +435,26 @@ public class MainActivity extends ActionBarActivity {
             this.context = context;
         }
 
-        @Override
-        protected void onCancelled () {
+        protected void cleanupOnEnd () {
             mWakeLock.release();
             setSupportProgressBarIndeterminateVisibility(false);
-            Toast.makeText(context,getString(R.string.toast_scan_canceled), Toast.LENGTH_SHORT).show();
             startedScan=false;
             scanButton.setText(getString(R.string.scanbtn));
+            scrollToBottom();
+        }
 
+        @Override
+        protected void onCancelled () {
+            cleanupOnEnd();
+            Toast.makeText(context,getString(R.string.toast_scan_canceled), Toast.LENGTH_SHORT).show();
         }
 
         @Override
         protected void onPostExecute(String result) {
-            mWakeLock.release();
-            setSupportProgressBarIndeterminateVisibility(false);
-            Toast.makeText(context,getString(R.string.toast_scan_finished), Toast.LENGTH_SHORT).show();
+            cleanupOnEnd();
             // For future: add scan to history scans
             // if (result!=null) outputView.append(result);
-            scrollToBottom();
-            startedScan=false;
-            scanButton.setText(getString(R.string.scanbtn));
+            Toast.makeText(context,getString(R.string.toast_scan_finished), Toast.LENGTH_SHORT).show();
         }
 
     }
