@@ -70,7 +70,6 @@ public class MainActivity extends ActionBarActivity {
         // supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
 
         setContentView(R.layout.activity_main);
 
@@ -88,18 +87,9 @@ public class MainActivity extends ActionBarActivity {
 
         // setSupportProgressBarIndeterminateVisibility(true);
 
-        String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
-
-        String appdir = getFilesDir().getParent();
-        String bindir;
-        if (binarydir.length()>0) {
-            bindir =binarydir;
-        } else {
-            bindir = appdir + "/bin";
-        }
-        nmapbin = bindir +"/nmap";
+        determineNmapBinLocation();
         shellToRun="sh";
-        Log.i("NetworkMapper","bindir: "+ bindir +" shell: "+shellToRun+" nmapbin: "+nmapbin);
+        Log.i("NetworkMapper","shell: "+shellToRun+" nmapbin: "+nmapbin);
 
         if (savedInstanceState != null) {
             Log.i("NetworkMapper","RestoreState()");
@@ -111,6 +101,19 @@ public class MainActivity extends ActionBarActivity {
         if (!isBinaryHere(false)) {
             askToDownload();
         }
+    }
+
+    private void determineNmapBinLocation () {
+        String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
+
+        String appdir = getFilesDir().getParent();
+        String bindir;
+        if (binarydir.length()>0) {
+            bindir =binarydir;
+        } else {
+            bindir = appdir + "/bin";
+        }
+        nmapbin = bindir +"/nmap";
     }
 
     private void askToDownload() {
@@ -180,6 +183,8 @@ public class MainActivity extends ActionBarActivity {
 
         String profileopt;
 
+        determineNmapBinLocation();
+
         // Spinner options - TODO: check if array is large enough
         String scanSwitches[]=getResources().getStringArray(R.array.scan_values_array);
         profileopt=" "+scanSwitches[spinner.getSelectedItemPosition()]+" ";
@@ -230,6 +235,7 @@ public class MainActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_download:
+                nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
                 downloadAll();
                 break;
 
