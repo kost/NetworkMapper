@@ -48,6 +48,9 @@
     <string name="toast_data_download_error">"Data Download error: "</string>
     <string name="toast_data_download_ok">Data File downloaded</string>
     <string name="toast_data_extraction_ok">Data file(s) extracted</string>
+    <string name="scanbutton_stop">Stop</string>
+    <string name="toast_scan_canceled">Scan cancelled!</string>
+    <string name="toast_scan_canceling">Canceling scan. Please wait!</string>
 
     <string-array name="scan_array">
         <item>Regular</item>

@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -57,11 +58,15 @@ public class MainActivity extends ActionBarActivity {
     private EditText editText;
     private ScrollView scrollView;
     private Spinner spinner;
+    private Button scanButton;
 
     private SharedPreferences sharedPrefs;
 
     private String nmapbin;
     private String shellToRun;
+    private boolean startedScan;
+
+    private ExecuteTask executeTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +74,7 @@ public class MainActivity extends ActionBarActivity {
 
         // supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
+        startedScan=false;
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         setContentView(R.layout.activity_main);
@@ -84,6 +90,7 @@ public class MainActivity extends ActionBarActivity {
         editText=(EditText)findViewById(R.id.editText);
         scrollView=(ScrollView)findViewById(R.id.scrollView);
         spinner=(Spinner)findViewById(R.id.spinner);
+        scanButton=(Button)findViewById(R.id.scanButton);
 
         // setSupportProgressBarIndeterminateVisibility(true);
 
@@ -183,6 +190,12 @@ public class MainActivity extends ActionBarActivity {
 
         String profileopt;
 
+        if (startedScan) {
+            Toast.makeText(getApplicationContext(),getString(R.string.toast_scan_canceling), Toast.LENGTH_SHORT).show();
+            executeTask.cancel(true);
+            return;
+        }
+
         determineNmapBinLocation();
 
         // Spinner options - TODO: check if array is large enough
@@ -208,7 +221,10 @@ public class MainActivity extends ActionBarActivity {
         Log.i("NetworkMapper", "Executing: " + cmdline);
         outputView.append(getString(R.string.info_executing) + cmdline + "\n");
 
-        final ExecuteTask executeTask = new ExecuteTask(this);
+        scanButton.setText(getString(R.string.scanbutton_stop));
+        startedScan=true;
+
+        executeTask = new ExecuteTask(this);
         executeTask.execute(cmdline);
 
         sharedProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -336,6 +352,7 @@ public class MainActivity extends ActionBarActivity {
     private class ExecuteTask extends AsyncTask<String,String,String> {
         final Context context;
         PowerManager.WakeLock mWakeLock;
+        Process process;
 
         @Override
         protected String doInBackground(String... sParm) {
@@ -350,7 +367,7 @@ public class MainActivity extends ActionBarActivity {
             BufferedReader errorStream;
 
             try {
-                Process process = Runtime.getRuntime().exec(shellToRun);
+                process = Runtime.getRuntime().exec(shellToRun);
 
                 outputStream = new DataOutputStream(process.getOutputStream());
                 errorStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -366,21 +383,26 @@ public class MainActivity extends ActionBarActivity {
                 inputStream.ready();
                 while (((pstdout = inputStream.readLine()) != null)
                         || ((pstderr = errorStream.readLine()) != null)) {
-                    if (pstderr!=null) {
-                        pstderr=pstderr+"\n";
-                        wholeoutput.append(pstderr);
+                    if (isCancelled()) {
+                        process.destroy();
+                        break;
+                    } else {
+                        if (pstderr != null) {
+                            pstderr = pstderr + "\n";
+                            wholeoutput.append(pstderr);
+                        }
+                        if (pstdout != null) {
+                            pstdout = pstdout + "\n";
+                            wholeoutput.append(pstdout);
+                        }
+                        Log.i("NetworkMapper", "Stdout: " + pstdout);
+                        Log.i("NetworkMapper", "Stderr: " + pstderr);
+                        publishProgress(pstdout, pstderr);
+                        pstdout = null;
+                        pstderr = null;
                     }
-                    if (pstdout!=null) {
-                        pstdout=pstdout+"\n";
-                        wholeoutput.append(pstdout);
-                    }
-                    Log.i("NetworkMapper", "Stdout: " + pstdout);
-                    Log.i("NetworkMapper","Stderr: " + pstderr);
-                    publishProgress(pstdout,pstderr);
-                    pstdout=null;
-                    pstderr=null;
                 }
-                process.waitFor();
+                if (!isCancelled()) process.waitFor();
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -414,12 +436,25 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
+        protected void onCancelled () {
+            mWakeLock.release();
+            setSupportProgressBarIndeterminateVisibility(false);
+            Toast.makeText(context,getString(R.string.toast_scan_canceled), Toast.LENGTH_SHORT).show();
+            startedScan=false;
+            scanButton.setText(getString(R.string.scanbtn));
+
+        }
+
+        @Override
         protected void onPostExecute(String result) {
             mWakeLock.release();
             setSupportProgressBarIndeterminateVisibility(false);
             Toast.makeText(context,getString(R.string.toast_scan_finished), Toast.LENGTH_SHORT).show();
-            if (result!=null) outputView.append(result);
+            // For future: add scan to history scans
+            // if (result!=null) outputView.append(result);
             scrollToBottom();
+            startedScan=false;
+            scanButton.setText(getString(R.string.scanbtn));
         }
 
     }
