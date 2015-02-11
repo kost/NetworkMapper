@@ -64,9 +64,10 @@ public class MainActivity extends ActionBarActivity {
 
     private String nmapbin;
     private String shellToRun;
-    private boolean startedScan;
 
+    private boolean startedScan;
     private ExecuteTask executeTask;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,7 +353,6 @@ public class MainActivity extends ActionBarActivity {
     private class ExecuteTask extends AsyncTask<String,String,String> {
         final Context context;
         PowerManager.WakeLock mWakeLock;
-        Process process;
 
         @Override
         protected String doInBackground(String... sParm) {
@@ -366,12 +366,14 @@ public class MainActivity extends ActionBarActivity {
             BufferedReader inputStream;
             BufferedReader errorStream;
 
-            try {
-                process = Runtime.getRuntime().exec(shellToRun);
+            Process scanProcess;
 
-                outputStream = new DataOutputStream(process.getOutputStream());
-                errorStream = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                inputStream = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            try {
+                scanProcess = Runtime.getRuntime().exec(shellToRun);
+
+                outputStream = new DataOutputStream(scanProcess.getOutputStream());
+                errorStream = new BufferedReader(new InputStreamReader(scanProcess.getErrorStream()));
+                inputStream = new BufferedReader(new InputStreamReader(scanProcess.getInputStream()));
 
                 for (String single : commands) {
                     Log.i("NetworkMapper","Single Executing: "+single);
@@ -384,7 +386,7 @@ public class MainActivity extends ActionBarActivity {
                 while (((pstdout = inputStream.readLine()) != null)
                         || ((pstderr = errorStream.readLine()) != null)) {
                     if (isCancelled()) {
-                        process.destroy();
+                        scanProcess.destroy();
                         break;
                     } else {
                         if (pstderr != null) {
@@ -402,7 +404,7 @@ public class MainActivity extends ActionBarActivity {
                         pstderr = null;
                     }
                 }
-                if (!isCancelled()) process.waitFor();
+                if (!isCancelled()) scanProcess.waitFor();
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
