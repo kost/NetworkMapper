@@ -358,21 +358,20 @@ public class MainActivity extends ActionBarActivity {
         protected String doInBackground(String... sParm) {
             String cmdline=sParm[0];
             String pstdout=null;
-            String pstderr=null;
             StringBuilder wholeoutput = new StringBuilder("");
             String[] commands = { cmdline };
 
             DataOutputStream outputStream;
             BufferedReader inputStream;
-            BufferedReader errorStream;
 
             Process scanProcess;
 
             try {
-                scanProcess = Runtime.getRuntime().exec(shellToRun);
+                ProcessBuilder processBuilder = new ProcessBuilder(shellToRun);
+                processBuilder.redirectErrorStream(true);
+                scanProcess = processBuilder.start();
 
                 outputStream = new DataOutputStream(scanProcess.getOutputStream());
-                errorStream = new BufferedReader(new InputStreamReader(scanProcess.getErrorStream()));
                 inputStream = new BufferedReader(new InputStreamReader(scanProcess.getInputStream()));
 
                 for (String single : commands) {
@@ -382,28 +381,21 @@ public class MainActivity extends ActionBarActivity {
                 }
                 outputStream.writeBytes("exit\n");
                 outputStream.flush();
-                inputStream.ready();
-                while (((pstdout = inputStream.readLine()) != null)
-                        || ((pstderr = errorStream.readLine()) != null)) {
+                while (((pstdout = inputStream.readLine()) != null)) {
                     if (isCancelled()) {
                         scanProcess.destroy();
                         break;
                     } else {
-                        if (pstderr != null) {
-                            pstderr = pstderr + "\n";
-                            wholeoutput.append(pstderr);
-                        }
                         if (pstdout != null) {
                             pstdout = pstdout + "\n";
                             wholeoutput.append(pstdout);
                         }
                         Log.i("NetworkMapper", "Stdout: " + pstdout);
-                        Log.i("NetworkMapper", "Stderr: " + pstderr);
-                        publishProgress(pstdout, pstderr);
+                        publishProgress(pstdout, null);
                         pstdout = null;
-                        pstderr = null;
                     }
                 }
+
                 if (!isCancelled()) scanProcess.waitFor();
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
