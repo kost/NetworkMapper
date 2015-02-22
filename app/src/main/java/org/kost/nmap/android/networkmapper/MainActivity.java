@@ -51,6 +51,7 @@ import java.util.zip.ZipInputStream;
 
 public class MainActivity extends ActionBarActivity {
     private ProgressDialog sharedProgressDialog;
+    private ProgressDialog cancelDialog;
     private String nmapurl;
 
     private int currentEabi;
@@ -86,6 +87,12 @@ public class MainActivity extends ActionBarActivity {
         sharedProgressDialog.setIndeterminate(true);
         sharedProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         sharedProgressDialog.setCancelable(true);
+
+        cancelDialog = new ProgressDialog(this);
+        cancelDialog.setMessage(getString(R.string.dlg_progress_cancel));
+        cancelDialog.setIndeterminate(false);
+        cancelDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        cancelDialog.setCancelable(false);
 
         outputView=(TextView)findViewById(R.id.outputView);
         editText=(EditText)findViewById(R.id.editText);
@@ -192,7 +199,8 @@ public class MainActivity extends ActionBarActivity {
         String profileopt;
 
         if (startedScan) {
-            Toast.makeText(getApplicationContext(),getString(R.string.toast_scan_canceling), Toast.LENGTH_SHORT).show();
+            cancelDialog.show();
+            // Toast.makeText(getApplicationContext(),getString(R.string.toast_scan_canceling), Toast.LENGTH_SHORT).show();
             executeTask.cancel(true);
             return;
         }
@@ -440,6 +448,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onCancelled () {
             cleanupOnEnd();
+            cancelDialog.dismiss();
             Toast.makeText(context,getString(R.string.toast_scan_canceled), Toast.LENGTH_SHORT).show();
         }
 

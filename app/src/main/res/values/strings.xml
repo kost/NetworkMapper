@@ -51,6 +51,7 @@
     <string name="scanbutton_stop">Stop</string>
     <string name="toast_scan_canceled">Scan cancelled!</string>
     <string name="toast_scan_canceling">Canceling scan. Please wait!</string>
+    <string name="dlg_progress_cancel">Canceling scan. It takes time.</string>
 
     <string-array name="scan_array">
         <item>Regular</item>
