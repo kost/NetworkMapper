@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -69,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
     private boolean startedScan;
     private ExecuteTask executeTask;
 
+    Process scanProcess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,15 +195,99 @@ public class MainActivity extends ActionBarActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    /* get the PID on unix systems */
+    public Integer getpid (Process process) {
+        Integer pid = null;
+            try {
+                Field f = process.getClass().getDeclaredField("pid");
+                f.setAccessible(true);
+                pid = f.getInt(process);
+            } catch (Throwable e) {
+            }
+        return pid;
+    }
+
+    public Integer getppid (Integer pid) {
+        String cmdline="ps";
+        String pstdout=null;
+        String[] commands = { cmdline };
+        Process psProcess;
+
+        DataOutputStream outputStream;
+        BufferedReader inputStream;
+
+        Integer retPid=null;
+
+        Log.i("NetworkMapper", "PS Finding parent of PID: " + pid);
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(shellToRun);
+            processBuilder.redirectErrorStream(true);
+            psProcess = processBuilder.start();
+
+            outputStream = new DataOutputStream(psProcess.getOutputStream());
+            inputStream = new BufferedReader(new InputStreamReader(psProcess.getInputStream()));
+
+            for (String single : commands) {
+                Log.i("NetworkMapper","PS Executing: "+single);
+                outputStream.writeBytes(single + "\n");
+                outputStream.flush();
+            }
+            outputStream.writeBytes("exit\n");
+            outputStream.flush();
+            while (((pstdout = inputStream.readLine()) != null)) {
+                Log.i("NetworkMapper", "PSStdout: " + pstdout);
+                String[] fields = pstdout.split("[ ]+");
+                Log.i("NetworkMapper", "PSStdout: " + fields[0]+":"+fields[1]+":"+fields[2]);
+                try {
+                    Integer candPpid = new Integer(fields[2]);
+                    Log.i("NetworkMapper", "PSStdout: " + candPpid+":"+pid);
+                    if (candPpid.equals(pid)) {
+                        Integer candPid = new Integer(fields[1]);
+                        retPid = candPid;
+                        Log.i("NetworkMapper", "PS Found: " + candPpid + ":" + candPid);
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+            psProcess.waitFor();
+            psProcess.destroy();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return retPid;
+    }
+
+    public void cancelScan () {
+        Log.i("NetworkMapper","Started Canceling scan!");
+        cancelDialog.show();
+        // Toast.makeText(getApplicationContext(),getString(R.string.toast_scan_canceling), Toast.LENGTH_SHORT).show();
+        executeTask.cancel(true);
+        Thread cancelThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    String killstr = new String("/system/bin/kill -9 "+ getppid(getpid(scanProcess)));
+                    Log.i("NetworkMapper","Executing kill: "+killstr);
+                    Runtime.getRuntime().exec(killstr);
+                } catch (IOException e) {
+                    Log.e("NetworkMapper", "Error killing process");
+                }
+            }
+        };
+        Log.i("NetworkMapper","Starting canceling thread.");
+        cancelThread.start();
+    }
+
     public void onScanButtonClick (View v) {
         StringBuilder sbcmdline = new StringBuilder("");
 
         String profileopt;
 
         if (startedScan) {
-            cancelDialog.show();
-            // Toast.makeText(getApplicationContext(),getString(R.string.toast_scan_canceling), Toast.LENGTH_SHORT).show();
-            executeTask.cancel(true);
+            cancelScan();
             return;
         }
 
@@ -372,7 +458,7 @@ public class MainActivity extends ActionBarActivity {
             DataOutputStream outputStream;
             BufferedReader inputStream;
 
-            Process scanProcess;
+//            Process scanProcess;
 
             try {
                 ProcessBuilder processBuilder = new ProcessBuilder(shellToRun);
