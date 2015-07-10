@@ -733,30 +733,35 @@ public class MainActivity extends ActionBarActivity {
             String urllink = params[0];
 
             String str;
-            try {
-                URL url = new URL(urllink);
-                Log.i("NetworkMapper","Downloading from URL: "+url.toString());
-                HttpURLConnection httpurlconn = (HttpURLConnection)url.openConnection();
-                httpurlconn.setInstanceFollowRedirects(true);
-                httpurlconn.connect();
 
-                InputStream in = new BufferedInputStream(httpurlconn.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader (new InputStreamReader(in));
+            int count = 0;
+            int maxTries = 3;
+            while(true) {
+                try {
+                    URL url = new URL(urllink);
+                    Log.i("NetworkMapper", "Downloading from URL: " + url.toString());
+                    HttpURLConnection httpurlconn = (HttpURLConnection) url.openConnection();
+                    httpurlconn.setInstanceFollowRedirects(true);
+                    httpurlconn.connect();
 
-                str = bufferedReader.readLine();
-                in.close();
-                httpurlconn.disconnect();
-                Log.i("NetworkMapper","Downloaded " + str);
-            } catch (MalformedURLException e) {
-                // throw new RuntimeException(e);
-                Log.e("NetworkMapper","MalformedURL: "+urllink);
-                return null;
-            } catch (IOException e) {
-                // throw new RuntimeException(e);
-                Log.e("NetworkMapper","IOException: "+urllink);
-                return null;
+                    InputStream in = new BufferedInputStream(httpurlconn.getInputStream());
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+
+                    str = bufferedReader.readLine();
+                    in.close();
+                    httpurlconn.disconnect();
+                    Log.i("NetworkMapper", "Downloaded " + str);
+                    return str;
+                } catch (MalformedURLException e) {
+                    // throw new RuntimeException(e);
+                    Log.e("NetworkMapper", "MalformedURL: " + urllink);
+                    return null;
+                } catch (IOException e) {
+                    // throw new RuntimeException(e);
+                    Log.e("NetworkMapper", "IOException: " + urllink);
+                    if (++count == maxTries) return null;
+                }
             }
-            return str;
         }
 
         @Override
