@@ -760,7 +760,7 @@ public class MainActivity extends ActionBarActivity {
                 } catch (IOException e) {
                     // throw new RuntimeException(e);
                     Log.e("NetworkMapper", "IOException: " + urllink);
-                    outputView.append("Error downloading - got IOException, try: "+count.toString()+"\n");
+                    outputView.append(getString(R.string.output_error_download_ioexception)+count.toString()+"\n");
                     if (++count == maxTries) {
                         Log.e("NetworkMapper", "Reached maximum tries");
                         return null;
@@ -783,7 +783,7 @@ public class MainActivity extends ActionBarActivity {
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
-            outputView.append("Downloading version file\n");
+            outputView.append(getString(R.string.output_downloading_version_file));
             sharedProgressDialog.show();
         }
 
@@ -793,11 +793,13 @@ public class MainActivity extends ActionBarActivity {
             sharedProgressDialog.dismiss();
             if (result == null) {
                 // XXX reporting with null doesn't make sense
-                Toast.makeText(context, getString(R.string.toast_download_version_error) + result, Toast.LENGTH_LONG).show();
+                outputView.append(getString(R.string.toast_download_version_error) + result+"\n");
+                // Toast.makeText(context, getString(R.string.toast_download_version_error) + result, Toast.LENGTH_LONG).show();
                 return;
             }
 
-            Toast.makeText(context,getString(R.string.toast_download_version_ok), Toast.LENGTH_SHORT).show();
+            outputView.append(getString(R.string.toast_download_version_ok) + "\n");
+            //Toast.makeText(context,getString(R.string.toast_download_version_ok), Toast.LENGTH_SHORT).show();
 
             downloadBinary(result,donexteabi());
         }
@@ -839,7 +841,7 @@ public class MainActivity extends ActionBarActivity {
         String binaryfn=prefixfn+"-binaries-"+eabi+".zip";
 
         Log.i("NetworkMapper","Using binaryfn: "+binaryfn);
-        outputView.append("Using binary filename: "+binaryfn+".\n");
+        outputView.append(getString(R.string.output_using_binary_filename)+binaryfn+".\n");
 
         final DownloadTask binaryTask = new DownloadTask(this) {
             @Override
@@ -849,17 +851,18 @@ public class MainActivity extends ActionBarActivity {
                     mWakeLock.release();
                     String nextEabi = donexteabi();
                     if (nextEabi==null) {
-                        Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
-                        outputView.append("No more architectures to try. Seems you have exotic one? Please, submit this error to author with error debug.\n");
+                        // Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
+                        outputView.append(getString(R.string.output_no_more_architectures_to_try)+": "+result+"\n");
                     } else {
-                        outputView.append("Trying following architecture: " + nextEabi + "\n");
-                        Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+ nextEabi,Toast.LENGTH_LONG).show();
+                        outputView.append(getString(R.string.output_trying_following_arch) + nextEabi + "\n");
+                        // Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+ nextEabi,Toast.LENGTH_LONG).show();
                         downloadBinary(prefixfn, nextEabi);
                     }
                     return;
                 }
 
-                Toast.makeText(context,getString(R.string.toast_download_binary_ok), Toast.LENGTH_SHORT).show();
+                outputView.append(getString(R.string.toast_download_binary_ok) + "\n");
+                //Toast.makeText(context,getString(R.string.toast_download_binary_ok), Toast.LENGTH_SHORT).show();
 
                 String bindir = getFilesDir().getParent() + "/bin/";
 
@@ -867,7 +870,8 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     protected void onPostExecute(String result) {
                         sharedProgressDialog.dismiss();
-                        Toast.makeText(context,getString(R.string.toast_binary_extraction_ok), Toast.LENGTH_SHORT).show();
+                        outputView.append(getString(R.string.toast_binary_extraction_ok)+"\n");
+//                        Toast.makeText(context,getString(R.string.toast_binary_extraction_ok), Toast.LENGTH_SHORT).show();
                         Log.i("NetworkMapper","Completed. Directory: "+result);
                         String bindir = getFilesDir().getParent() + "/bin/";
                         String[] commands = {"ncat", "ndiff", "nmap", "nping"};
@@ -876,7 +880,8 @@ public class MainActivity extends ActionBarActivity {
                                 Runtime.getRuntime().exec("/system/bin/chmod 755 " + bindir + singlecommand);
                             }
                         } catch (IOException e) {
-                            Toast.makeText(context,"Error setting permissions", Toast.LENGTH_SHORT).show();
+                            outputView.append(getString(R.string.output_error_setting_permission)+"\n");
+                            // Toast.makeText(context,"Error setting permissions", Toast.LENGTH_SHORT).show();
                             Log.e("NetworkMapper","IO Exception: \n"+e.toString());
                         }
 
@@ -941,11 +946,13 @@ public class MainActivity extends ActionBarActivity {
             protected void onPostExecute(String result) {
                 sharedProgressDialog.dismiss();
                 if (result != null) {
-                    Toast.makeText(context, getString(R.string.toast_data_download_error) + result, Toast.LENGTH_LONG).show();
+                    outputView.append(getString(R.string.toast_data_download_error) + result);
+                    // Toast.makeText(context, getString(R.string.toast_data_download_error) + result, Toast.LENGTH_LONG).show();
                     mWakeLock.release();
                     return;
                 }
-                Toast.makeText(context, getString(R.string.toast_data_download_ok), Toast.LENGTH_SHORT).show();
+                outputView.append(getString(R.string.toast_data_download_ok) + "\n");
+                // Toast.makeText(context, getString(R.string.toast_data_download_ok), Toast.LENGTH_SHORT).show();
 
                 String datadir = Environment.getExternalStorageDirectory().toString() + "/opt/";
                 final UnzipTask datazipTask = new UnzipTask(this.context) {
