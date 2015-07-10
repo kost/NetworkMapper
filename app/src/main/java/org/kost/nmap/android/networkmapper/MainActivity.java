@@ -734,12 +734,13 @@ public class MainActivity extends ActionBarActivity {
 
             String str;
 
-            int count = 0;
-            int maxTries = 3;
+            Integer count = 0;
+            Integer maxTries = 3;
             while(true) {
+                URL url;
                 try {
-                    URL url = new URL(urllink);
-                    Log.i("NetworkMapper", "Downloading from URL: " + url.toString());
+                    url = new URL(urllink);
+                    Log.i("NetworkMapper", "Downloading from URL: " + url.toString() + "\n");
                     HttpURLConnection httpurlconn = (HttpURLConnection) url.openConnection();
                     httpurlconn.setInstanceFollowRedirects(true);
                     httpurlconn.connect();
@@ -759,7 +760,16 @@ public class MainActivity extends ActionBarActivity {
                 } catch (IOException e) {
                     // throw new RuntimeException(e);
                     Log.e("NetworkMapper", "IOException: " + urllink);
-                    if (++count == maxTries) return null;
+                    outputView.append("Error downloading - got IOException, try: "+count.toString()+"\n");
+                    if (++count == maxTries) {
+                        Log.e("NetworkMapper", "Reached maximum tries");
+                        return null;
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e1) {
+                        Log.e("NetworkMapper","ThreadSleep");
+                    }
                 }
             }
         }
@@ -773,6 +783,7 @@ public class MainActivity extends ActionBarActivity {
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     getClass().getName());
             mWakeLock.acquire();
+            outputView.append("Downloading version file\n");
             sharedProgressDialog.show();
         }
 
@@ -828,6 +839,8 @@ public class MainActivity extends ActionBarActivity {
         String binaryfn=prefixfn+"-binaries-"+eabi+".zip";
 
         Log.i("NetworkMapper","Using binaryfn: "+binaryfn);
+        outputView.append("Using binary filename: "+binaryfn+".\n");
+
         final DownloadTask binaryTask = new DownloadTask(this) {
             @Override
             protected void onPostExecute(String result) {
@@ -837,7 +850,9 @@ public class MainActivity extends ActionBarActivity {
                     String nextEabi = donexteabi();
                     if (nextEabi==null) {
                         Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
+                        outputView.append("No more architectures to try. Seems you have exotic one? Please, submit this error to author with error debug.\n");
                     } else {
+                        outputView.append("Trying following architecture: " + nextEabi + "\n");
                         Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+ nextEabi,Toast.LENGTH_LONG).show();
                         downloadBinary(prefixfn, nextEabi);
                     }
@@ -866,7 +881,28 @@ public class MainActivity extends ActionBarActivity {
                         }
 
                         Log.i("NetworkMapper","Data: Using prefix: "+dlprefix);
-                        downloadData(dlprefix);
+
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == DialogInterface.BUTTON_POSITIVE) {
+                                    downloadData(dlprefix);
+                                } else {
+                                    SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName() + "_preferences",Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString(getString(R.string.nmapbin_version), prefixfn);
+                                    editor.apply();
+                                }
+                            }
+                        };
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setMessage(getString(R.string.dlg_ask2downloaddata))
+                                .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
+                                .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
+                                .show();
+
+
                     }
                 };
                 binzipTask.execute(dlfn, bindir, dlprefix);
@@ -922,8 +958,21 @@ public class MainActivity extends ActionBarActivity {
                             SharedPreferences.Editor editor = sharedPref.edit();
                             editor.putString(getString(R.string.nmapbin_version), prefixfn);
                             editor.apply();
-                            Log.i("NetworkMapper","deleting recursively!");
-                            DeleteRecursive(new File(datadldir + "/" + prefixfn));
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                                        Log.i("NetworkMapper","deleting recursively!");
+                                        DeleteRecursive(new File(datadldir + "/" + prefixfn));
+                                    }
+                                }
+                            };
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setMessage(getString(R.string.dlg_ask2deletedata)+" "+oldver)
+                                    .setPositiveButton(getString(R.string.dlg_ask2delete_yes), dialogClickListener)
+                                    .setNegativeButton(getString(R.string.dlg_ask2delete_no), dialogClickListener)
+                                    .show();
                         } else {
                             Log.i("NetworkMapper","No need to delete recursively!");
                         }

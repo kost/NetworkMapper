@@ -52,6 +52,10 @@
     <string name="toast_scan_canceled">Scan cancelled!</string>
     <string name="toast_scan_canceling">Canceling scan. Please wait!</string>
     <string name="dlg_progress_cancel">Canceling scan. It takes time.</string>
+    <string name="dlg_ask2downloaddata">Do you want to download data files (services, scripts, etc)?</string>
+    <string name="dlg_ask2delete_yes">Yes</string>
+    <string name="dlg_ask2delete_no">No</string>
+    <string name="dlg_ask2deletedata">Do you want to download old version nmap data directory (scripts, services, etc)?</string>
 
     <string-array name="scan_array">
         <item>Regular</item>
