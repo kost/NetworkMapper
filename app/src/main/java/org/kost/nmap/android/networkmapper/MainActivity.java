@@ -970,7 +970,7 @@ public class MainActivity extends ActionBarActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (which == DialogInterface.BUTTON_POSITIVE) {
                                         Log.i("NetworkMapper","deleting recursively!");
-                                        DeleteRecursive(new File(datadldir + "/" + prefixfn));
+                                        DeleteRecursive(new File(datadldir + "/" + oldver));
                                     }
                                 }
                             };
