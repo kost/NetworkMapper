@@ -833,6 +833,8 @@ public class MainActivity extends ActionBarActivity {
         String appdir = getFilesDir().getParent();
         String bindir = appdir + "/bin";
         String dldir = appdir + "/dl";
+        String root = Environment.getExternalStorageDirectory().toString();
+        final String datadldir = root + "/opt";
 
         Log.i("NetworkMapper", "Using bindir:" + bindir + ", dldir:" + dldir);
         makedir(bindir);
@@ -887,25 +889,29 @@ public class MainActivity extends ActionBarActivity {
 
                         Log.i("NetworkMapper","Data: Using prefix: "+dlprefix);
 
-                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (which == DialogInterface.BUTTON_POSITIVE) {
-                                    downloadData(dlprefix);
-                                } else {
-                                    SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName() + "_preferences",Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putString(getString(R.string.nmapbin_version), prefixfn);
-                                    editor.apply();
-                                }
-                            }
-                        };
+                        File myDir = new File(datadldir+"/"+dlprefix);
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setMessage(getString(R.string.dlg_ask2downloaddata))
-                                .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
-                                .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
-                                .show();
+                        if(myDir.isDirectory()) {
+                            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == DialogInterface.BUTTON_POSITIVE) {
+                                        downloadData(dlprefix);
+                                    } else {
+                                        SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName() + "_preferences", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString(getString(R.string.nmapbin_version), prefixfn);
+                                        editor.apply();
+                                    }
+                                }
+                            };
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setMessage(getString(R.string.dlg_ask2downloaddata))
+                                    .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
+                                    .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
+                                    .show();
+                        }
 
 
                     }
