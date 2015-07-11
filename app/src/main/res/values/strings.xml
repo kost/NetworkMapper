@@ -39,7 +39,7 @@
     <string name="toast_scan_finished">Scan finished</string>
     <string name="dlg_progress_title_download">Download</string>
     <string name="dlg_progress_title_extraction">Extraction</string>
-    <string name="toast_download_version_error">"Version download error: "</string>
+    <string name="toast_download_version_error">Version download error. Probably there is no internet access or server is not accessible. Please retry.</string>
     <string name="toast_download_version_ok">Version file downloaded</string>
     <string name="toast_dowload_binary_error">"Binary download error: "</string>
     <string name="toast_download_binary_nextarch">"Trying next architecture: "</string>

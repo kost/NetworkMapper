@@ -760,7 +760,7 @@ public class MainActivity extends ActionBarActivity {
                 } catch (IOException e) {
                     // throw new RuntimeException(e);
                     Log.e("NetworkMapper", "IOException: " + urllink);
-                    outputView.append(getString(R.string.output_error_download_ioexception)+count.toString()+"\n");
+                    //outputView.append(getString(R.string.output_error_download_ioexception)+count.toString()+"\n");
                     if (++count == maxTries) {
                         Log.e("NetworkMapper", "Reached maximum tries");
                         return null;
@@ -793,7 +793,7 @@ public class MainActivity extends ActionBarActivity {
             sharedProgressDialog.dismiss();
             if (result == null) {
                 // XXX reporting with null doesn't make sense
-                outputView.append(getString(R.string.toast_download_version_error) + result+"\n");
+                outputView.append(getString(R.string.toast_download_version_error)+"\n");
                 // Toast.makeText(context, getString(R.string.toast_download_version_error) + result, Toast.LENGTH_LONG).show();
                 return;
             }
@@ -809,7 +809,9 @@ public class MainActivity extends ActionBarActivity {
     private void downloadAll () {
         currentEabi = 0;
         final SimpleHttpTask verTask = new SimpleHttpTask(this);
-        verTask.execute(nmapurl + "/nmap-latest.txt");
+        String versionurl = nmapurl + "/nmap-latest.txt";
+        outputView.append("Downloading from: "+versionurl+"\n");
+        verTask.execute(versionurl);
 
         sharedProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
