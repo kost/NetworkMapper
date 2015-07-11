@@ -52,10 +52,10 @@
     <string name="toast_scan_canceled">Scan cancelled!</string>
     <string name="toast_scan_canceling">Canceling scan. Please wait!</string>
     <string name="dlg_progress_cancel">Canceling scan. It takes time.</string>
-    <string name="dlg_ask2downloaddata">Do you want to delete old data files (services, scripts, etc)?</string>
+    <string name="dlg_ask2downloaddata">Do you want to download nmap data directory (scripts, services, etc)?</string>
     <string name="dlg_ask2delete_yes">Yes</string>
     <string name="dlg_ask2delete_no">No</string>
-    <string name="dlg_ask2deletedata">Do you want to download old version nmap data directory (scripts, services, etc)?</string>
+    <string name="dlg_ask2deletedata">Do you want to delete old data files (services, scripts, etc)?</string>
     <string name="output_using_binary_filename">"Using binary filename: "</string>
     <string name="output_no_more_architectures_to_try">No more architectures to try. Seems you have exotic one? Please, submit this error to author with error debug.\n</string>
     <string name="output_trying_following_arch">"Trying following architecture: "</string>
