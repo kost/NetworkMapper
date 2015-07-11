@@ -959,7 +959,7 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     protected void onPostExecute(String result) {
                         SharedPreferences sharedPref = context.getSharedPreferences(context.getPackageName() + "_preferences",Context.MODE_PRIVATE);
-                        String oldver=sharedPref.getString(getString(R.string.nmapbin_version),"");
+                        final String oldver=sharedPref.getString(getString(R.string.nmapbin_version),"");
 
                         if (!oldver.equals("") && !oldver.equals(prefixfn)) {
                             SharedPreferences.Editor editor = sharedPref.edit();
