@@ -863,7 +863,7 @@ public class MainActivity extends ActionBarActivity {
                     if (nextEabi==null) {
                         if (doneFallback) {
                             // Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
-                            outputView.append(getString(R.string.output_no_more_architectures_to_try) + ": " + result + "\n");
+                            outputView.append(getString(R.string.output_no_more_architectures_to_try) + ": " + result + ": "+archs+"\n");
                         } else {
                             outputView.append(getString(R.string.output_trying_fallback_archs));
                             if (archs.contains("mips")) {
@@ -969,6 +969,8 @@ public class MainActivity extends ActionBarActivity {
         makedir(datadldir);
 
         String datafn = prefixfn + "-data.zip";
+
+        outputView.append(getString(R.string.output_download_datafn)+datafn+"\n");
 
         final DownloadTask dataTask = new DownloadTask(this) {
             @Override
