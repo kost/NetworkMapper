@@ -72,6 +72,9 @@ public class MainActivity extends ActionBarActivity {
 
     Process scanProcess;
 
+    private String archs;
+    private boolean doneFallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -800,7 +803,9 @@ public class MainActivity extends ActionBarActivity {
             outputView.append(getString(R.string.toast_download_version_ok) + "\n");
             //Toast.makeText(context,getString(R.string.toast_download_version_ok), Toast.LENGTH_SHORT).show();
 
-            downloadBinary(result,donexteabi());
+            doneFallback=false;
+            archs=donexteabi();
+            downloadBinary(result,archs);
         }
 
     }
@@ -854,9 +859,25 @@ public class MainActivity extends ActionBarActivity {
                 if (result != null) {
                     mWakeLock.release();
                     String nextEabi = donexteabi();
+                    archs = archs+":"+nextEabi;
                     if (nextEabi==null) {
-                        // Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
-                        outputView.append(getString(R.string.output_no_more_architectures_to_try)+": "+result+"\n");
+                        if (doneFallback) {
+                            // Toast.makeText(context, getString(R.string.toast_dowload_binary_error) + result, Toast.LENGTH_LONG).show();
+                            outputView.append(getString(R.string.output_no_more_architectures_to_try) + ": " + result + "\n");
+                        } else {
+                            outputView.append(getString(R.string.output_trying_fallback_archs));
+                            if (archs.contains("mips")) {
+                                nextEabi = "mips";
+                            }
+                            if (archs.contains("x86")) {
+                                nextEabi = "x86";
+                            }
+                            if (archs.contains("arm")) {
+                                nextEabi = "armeabi";
+                            }
+                            doneFallback=true;
+                            downloadBinary(prefixfn, nextEabi);
+                        }
                     } else {
                         outputView.append(getString(R.string.output_trying_following_arch) + nextEabi + "\n");
                         // Toast.makeText(context, getString(R.string.toast_download_binary_nextarch)+ nextEabi,Toast.LENGTH_LONG).show();
@@ -913,9 +934,9 @@ public class MainActivity extends ActionBarActivity {
                                     .setPositiveButton(getString(R.string.dlg_ask2download_yes), dialogClickListener)
                                     .setNegativeButton(getString(R.string.dlg_ask2download_no), dialogClickListener)
                                     .show();
+                        } else {
+                            downloadData(dlprefix);
                         }
-
-
                     }
                 };
                 binzipTask.execute(dlfn, bindir, dlprefix);

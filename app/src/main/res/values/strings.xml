@@ -62,6 +62,7 @@
     <string name="output_error_download_ioexception">"Error downloading - got IOException, try: "</string>
     <string name="output_downloading_version_file">Downloading version file\n</string>
     <string name="output_error_setting_permission">Error setting permissions\n</string>
+    <string name="output_trying_fallback_archs">Tried reported architectures. Now trying fallback architectures\n</string>
 
     <string-array name="scan_array">
         <item>Regular</item>
