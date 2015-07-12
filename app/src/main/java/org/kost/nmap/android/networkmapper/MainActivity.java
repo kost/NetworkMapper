@@ -346,7 +346,6 @@ public class MainActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_download:
-                nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
                 downloadAll();
                 break;
 
@@ -808,6 +807,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void downloadAll () {
         currentEabi = 0;
+        nmapurl=sharedPrefs.getString("pref_updateurl",getString(R.string.pref_default_updateurl));
         final SimpleHttpTask verTask = new SimpleHttpTask(this);
         String versionurl = nmapurl + "/nmap-latest.txt";
         outputView.append("Downloading from: "+versionurl+"\n");
