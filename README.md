@@ -19,4 +19,9 @@ ANDROID_HOME=/opt/Android/Sdk gradle tasks
 
 Note: you must have gradle version 2 or higher 
 
+# Donate
+
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=kost&url=https://github.com/kost/NetworkMapper&title=Network Mapper&language=&tags=github&category=software) 
+
+
 
