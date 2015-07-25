@@ -209,6 +209,13 @@ public class SettingsActivity extends PreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
+
+        // Check if valid fragment: prevent crashes and vulnerabilities
+        // http://stackoverflow.com/questions/19973034/isvalidfragment-android-api-19
+        protected boolean isValidFragment(String fragmentName) {
+            return GeneralPreferenceFragment.class.getName().equals(fragmentName);
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -228,6 +235,13 @@ public class SettingsActivity extends PreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class AdvancedPreferenceFragment extends PreferenceFragment {
+
+        // Check if valid fragment: prevent crashes and vulnerabilities
+        // http://stackoverflow.com/questions/19973034/isvalidfragment-android-api-19
+        protected boolean isValidFragment(String fragmentName) {
+            return AdvancedPreferenceFragment.class.getName().equals(fragmentName);
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
