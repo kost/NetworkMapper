@@ -264,6 +264,7 @@ public class MainActivity extends ActionBarActivity {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText(getString(R.string.clipboard_title), outputView.getText());
                 clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(),getString(R.string.toast_copy2cliboard), Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.action_displayip:

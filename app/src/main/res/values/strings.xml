@@ -66,6 +66,7 @@
     <string name="output_download_datafn">"Downloading data archive: "</string>
     <string name="action_copy2clipboard">Copy to Clipboard</string>
     <string name="clipboard_title">Nmap scan</string>
+    <string name="toast_copy2cliboard">Output copied to clipboard</string>
 
     <string-array name="scan_array">
         <item>Regular</item>
@@ -89,7 +90,7 @@
         <item>-sS -sU -T4 -A -v</item>
         <item>-p 1-65535 -T4 -A -v</item>
         <item>-T4 -A -v -Pn</item>
-        <item>-sS -sU -T4 -A -v -PE -PS80,443 -PA3389 -PP -PU40125 -PY --source-port 53 "--script=default or (discovery and safe)"</item>
+        <item>-sS -sU -T4 -A -v -PE -PS80,443 -PA3389 -PP -PU40125 -PY --source-port 53 \"--script=default or (discovery and safe)\"</item>
     </string-array>
 
 </resources>
