@@ -64,6 +64,8 @@
     <string name="output_error_setting_permission">Error setting permissions\n</string>
     <string name="output_trying_fallback_archs">Tried reported architectures. Now trying fallback architectures\n</string>
     <string name="output_download_datafn">"Downloading data archive: "</string>
+    <string name="action_copy2clipboard">Copy to Clipboard</string>
+    <string name="clipboard_title">Nmap scan</string>
 
     <string-array name="scan_array">
         <item>Regular</item>

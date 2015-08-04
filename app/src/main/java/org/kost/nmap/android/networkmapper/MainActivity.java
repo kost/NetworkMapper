@@ -2,6 +2,8 @@ package org.kost.nmap.android.networkmapper;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -362,6 +364,12 @@ public class MainActivity extends ActionBarActivity {
                 sendIntent.putExtra(Intent.EXTRA_TEXT, outputView.getText());
                 sendIntent.setType("text/plain");
                 startActivity(Intent.createChooser(sendIntent, getText(R.string.share_to)));
+                break;
+
+            case R.id.action_copy2clipboard:
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText(getString(R.string.clipboard_title), outputView.getText());
+                clipboard.setPrimaryClip(clip);
                 break;
 
             case R.id.action_displayip:
