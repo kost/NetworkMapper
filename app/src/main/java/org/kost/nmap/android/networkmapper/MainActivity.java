@@ -109,7 +109,7 @@ public class MainActivity extends ActionBarActivity {
 
         // setSupportProgressBarIndeterminateVisibility(true);
 
-        determineNmapBinLocation();
+        nmapbin=NmapBinUtil.determineNmapBinLocation(sharedPrefs, getString(R.string.pref_default_binaryloc), getFilesDir().getParent());
         shellToRun="sh";
         Log.i("NetworkMapper","shell: "+shellToRun+" nmapbin: "+nmapbin);
 
@@ -123,19 +123,6 @@ public class MainActivity extends ActionBarActivity {
         if (!isBinaryHere(false)) {
             askToDownload();
         }
-    }
-
-    private void determineNmapBinLocation () {
-        String binarydir=sharedPrefs.getString("pref_binaryloc",getString(R.string.pref_default_binaryloc));
-
-        String appdir = getFilesDir().getParent();
-        String bindir;
-        if (binarydir.length()>0) {
-            bindir =binarydir;
-        } else {
-            bindir = appdir + "/bin";
-        }
-        nmapbin = bindir +"/nmap";
     }
 
     private void askToDownload() {
@@ -156,33 +143,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void displaySuInfo() {
-        if (canRunRootCommands()) {
+        if (ProcessUtil.canRunRootCommands()) {
             outputView.append(getString(R.string.info_gotroot));
             shellToRun="su";
         } else {
             outputView.append(getString(R.string.info_noroot));
         }
-    }
-
-    private String PoorManFilter(String str) {
-        return str.replaceAll("[^A-Za-z0-9_ .:/-]","");
-    }
-
-    private String getIPs() {
-        String interfaces="";
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) {
-                        interfaces=interfaces+"[IP]: "+ inetAddress.getHostAddress() +"\n";
-                    }
-                }
-            }
-        } catch (SocketException ignored) {
-        }
-        return interfaces;
     }
 
     @Override
@@ -194,75 +160,10 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString("outputView",outputView.getText().toString());
+        savedInstanceState.putString("outputView", outputView.getText().toString());
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
-    }
-
-    /* get the PID on unix systems */
-    public Integer getpid (Process process) {
-        Integer pid = null;
-            try {
-                Field f = process.getClass().getDeclaredField("pid");
-                f.setAccessible(true);
-                pid = f.getInt(process);
-            } catch (Throwable e) {
-            }
-        return pid;
-    }
-
-    public Integer getppid (Integer pid) {
-        String cmdline="ps";
-        String pstdout=null;
-        String[] commands = { cmdline };
-        Process psProcess;
-
-        DataOutputStream outputStream;
-        BufferedReader inputStream;
-
-        Integer retPid=null;
-
-        Log.i("NetworkMapper", "PS Finding parent of PID: " + pid);
-
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(shellToRun);
-            processBuilder.redirectErrorStream(true);
-            psProcess = processBuilder.start();
-
-            outputStream = new DataOutputStream(psProcess.getOutputStream());
-            inputStream = new BufferedReader(new InputStreamReader(psProcess.getInputStream()));
-
-            for (String single : commands) {
-                Log.i("NetworkMapper","PS Executing: "+single);
-                outputStream.writeBytes(single + "\n");
-                outputStream.flush();
-            }
-            outputStream.writeBytes("exit\n");
-            outputStream.flush();
-            while (((pstdout = inputStream.readLine()) != null)) {
-                Log.i("NetworkMapper", "PSStdout: " + pstdout);
-                String[] fields = pstdout.split("[ ]+");
-                Log.i("NetworkMapper", "PSStdout: " + fields[0]+":"+fields[1]+":"+fields[2]);
-                try {
-                    Integer candPpid = new Integer(fields[2]);
-                    Log.i("NetworkMapper", "PSStdout: " + candPpid+":"+pid);
-                    if (candPpid.equals(pid)) {
-                        Integer candPid = new Integer(fields[1]);
-                        retPid = candPid;
-                        Log.i("NetworkMapper", "PS Found: " + candPpid + ":" + candPid);
-                        break;
-                    }
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
-            }
-            psProcess.waitFor();
-            psProcess.destroy();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return retPid;
     }
 
     public void cancelScan () {
@@ -274,7 +175,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
                 try {
-                    String killstr = new String("/system/bin/kill -9 "+ getppid(getpid(scanProcess)));
+                    String killstr = new String("/system/bin/kill -9 "+ ProcessUtil.getppid(ProcessUtil.getpid(scanProcess),shellToRun));
                     Log.i("NetworkMapper","Executing kill: "+killstr);
                     Runtime.getRuntime().exec(killstr);
                 } catch (IOException e) {
@@ -296,7 +197,7 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
 
-        determineNmapBinLocation();
+        nmapbin=NmapBinUtil.determineNmapBinLocation(sharedPrefs, getString(R.string.pref_default_binaryloc), getFilesDir().getParent());
 
         // Spinner options - TODO: check if array is large enough
         String scanSwitches[]=getResources().getStringArray(R.array.scan_values_array);
@@ -305,18 +206,18 @@ public class MainActivity extends ActionBarActivity {
         // get defaultopts;
         String defaultopts=sharedPrefs.getString("pref_defaultopts", getString(R.string.pref_default_defaultopts));
 
-        sbcmdline.append(PoorManFilter(nmapbin));
+        sbcmdline.append(SanitUtil.PoorManFilter(nmapbin));
         // add defaultopts if there any
         if (defaultopts.length()>0) {
             sbcmdline.append(" ");
-            sbcmdline.append(PoorManFilter(defaultopts));
+            sbcmdline.append(SanitUtil.PoorManFilter(defaultopts));
             sbcmdline.append(" ");
         }
         // add profile options
         sbcmdline.append(profileopt);
         sbcmdline.append(" ");
         // add target and any options from editText
-        sbcmdline.append(PoorManFilter(editText.getText().toString()));
+        sbcmdline.append(SanitUtil.PoorManFilter(editText.getText().toString()));
         String cmdline = sbcmdline.toString();
         Log.i("NetworkMapper", "Executing: " + cmdline);
         outputView.append(getString(R.string.info_executing) + cmdline + "\n");
@@ -373,7 +274,7 @@ public class MainActivity extends ActionBarActivity {
                 break;
 
             case R.id.action_displayip:
-                outputView.append(getIPs());
+                outputView.append(NetUtil.getIPs());
                 break;
 
             case R.id.action_about:
@@ -384,48 +285,6 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private static boolean canRunRootCommands()
-    {
-        boolean retval;
-        Process suProcess;
-        try
-        {
-            suProcess = Runtime.getRuntime().exec("su");
-            BufferedWriter os = new BufferedWriter(new OutputStreamWriter(suProcess.getOutputStream()));
-            BufferedReader osRes = new BufferedReader(new InputStreamReader(suProcess.getInputStream()));
-            os.write("id\n");
-            os.flush();
-            String currUid = osRes.readLine();
-            boolean exitSu;
-            if (null == currUid)
-            {
-                retval = false;
-                exitSu = false;
-            }
-            else if (currUid.contains("uid=0"))
-            {
-                retval = true;
-                exitSu = true;
-            }
-            else
-            {
-                retval = false;
-                exitSu = true;
-            }
-
-            if (exitSu)
-            {
-                os.write("exit\n");
-                os.flush();
-            }
-        }
-        catch (Exception e)
-        {
-            retval = false;
-        }
-        return retval;
     }
 
     private boolean isBinaryHere(boolean displayOutput) {
@@ -688,7 +547,7 @@ public class MainActivity extends ActionBarActivity {
                     Log.v("NetworkMapper", "Unzipping " + ze.getName());
 
                     if (ze.isDirectory()) {
-                        makedir(dest + ze.getName());
+                        FileUtil.makedir(dest + ze.getName());
                     } else {
                         per++;
                         publishProgress(per);
@@ -852,13 +711,13 @@ public class MainActivity extends ActionBarActivity {
         final String datadldir = root + "/opt";
 
         Log.i("NetworkMapper", "Using bindir:" + bindir + ", dldir:" + dldir);
-        makedir(bindir);
-        makedir(dldir);
+        FileUtil.makedir(bindir);
+        FileUtil.makedir(dldir);
 
         String binaryfn=prefixfn+"-binaries-"+eabi+".zip";
 
         Log.i("NetworkMapper","Using binaryfn: "+binaryfn);
-        outputView.append(getString(R.string.output_using_binary_filename)+binaryfn+".\n");
+        outputView.append(getString(R.string.output_using_binary_filename) + binaryfn + ".\n");
 
         final DownloadTask binaryTask = new DownloadTask(this) {
             @Override
@@ -974,7 +833,7 @@ public class MainActivity extends ActionBarActivity {
         final String datadldir = root + "/opt";
 
         Log.i("NetworkMapper", "Using datadldir: " + datadldir);
-        makedir(datadldir);
+        FileUtil.makedir(datadldir);
 
         String datafn = prefixfn + "-data.zip";
 
@@ -1009,7 +868,7 @@ public class MainActivity extends ActionBarActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (which == DialogInterface.BUTTON_POSITIVE) {
                                         Log.i("NetworkMapper","deleting recursively!");
-                                        DeleteRecursive(new File(datadldir + "/" + oldver));
+                                        FileUtil.DeleteRecursive(new File(datadldir + "/" + oldver));
                                     }
                                 }
                             };
@@ -1030,13 +889,6 @@ public class MainActivity extends ActionBarActivity {
                         isBinaryHere(true);
                     }
 
-                    void DeleteRecursive(File fileOrDirectory) {
-                        if (fileOrDirectory.isDirectory())
-                            for (File child : fileOrDirectory.listFiles())
-                                DeleteRecursive(child);
-
-                        fileOrDirectory.delete();
-                    }
 
                 };
                 datazipTask.execute(dlfn, datadir, dlprefix);
@@ -1062,12 +914,6 @@ public class MainActivity extends ActionBarActivity {
         });
     }
 
-    private void makedir (String dir) {
-        File myDir = new File(dir);
 
-        if(!myDir.isDirectory()) {
-            myDir.mkdirs();
-        }
-    }
 
 }

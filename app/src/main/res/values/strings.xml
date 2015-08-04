@@ -89,7 +89,7 @@
         <item>-sS -sU -T4 -A -v</item>
         <item>-p 1-65535 -T4 -A -v</item>
         <item>-T4 -A -v -Pn</item>
-        <item>-sS -sU -T4 -A -v -PE -PS80,443 -PA3389 -PP -PU40125 -PY --source-port 53 --script "default or (discovery and safe)"</item>
+        <item>-sS -sU -T4 -A -v -PE -PS80,443 -PA3389 -PP -PU40125 -PY --source-port 53 "--script=default or (discovery and safe)"</item>
     </string-array>
 
 </resources>
