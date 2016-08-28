@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kost/NetworkMapper.png)](https://travis-ci.org/kost/NetworkMapper)
+
 # NetworkMapper
 Android frontend for Nmap Security Scanner
 
